@@ -1,5 +1,9 @@
 package org.example.webscraping.api.controller;
 
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 import org.example.webscraping.domain.Yayin;
 import org.example.webscraping.repo.YayinRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +49,36 @@ public class WebScrapingController {
                 System.out.println("Yayın " + count + ":");
                 System.out.println("Yazarlar: " + authors);
                 System.out.println("Başlık: " + title);
+
+                try (MongoClient mongoClient = MongoClients.create("mongodb://localhost:27017")) {
+                    // Veritabanını seç
+                    MongoDatabase database = mongoClient.getDatabase("WebScrapingAkademi");
+
+                    // Veritabanında koleksiyon oluştur veya var olanı al
+                    MongoCollection<org.bson.Document> collection = database.getCollection("yayinlar");
+
+                    // Örnek bir yayın belgesi oluştur
+                    org.bson.Document publication = new org.bson.Document()
+                            .append("yayinAdi", "rnek Yayın")
+                            .append("yazarlar", authors)
+                            .append("yayinTuru", "Araştırma Makalesi")
+                            .append("yayinTarihi", "01-01-2023")
+                            .append("yayinciAdi", "Bir Dergi")
+                            .append("anahtarKelimelerAra", "Web Scraping, MongoDB, Java")
+                            .append("anahtarKelimelerMakale", "Veritabanı, Web Scraping, Akademik")
+                            .append("ozet", "Bu bir örnek yayındır.")
+                            .append("referanslar", "Referans1, Referans2")
+                            .append("alintiSayisi", 10)
+                            .append("doiNumarasi", "doi:12345")
+                            .append("urlAdresi", "https://ornek-yayin.com");
+
+                    // MongoDB'ye belge ekle
+                    collection.insertOne(publication);
+
+                    System.out.println("Yayın MongoDB'ye eklendi.");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
                 Element pdfLinkElement = result.select("div.gs_ggsd a:contains(PDF)").first();
                 if (pdfLinkElement != null) {
