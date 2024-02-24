@@ -1,8 +1,8 @@
 package org.example.webscraping.domain;
 
-import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document("yayin")
@@ -10,7 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Setter
 public class Yayin {
     @Id
-    private String id; // MongoDB ObjectId formatında bir alan kullanılmalıdır
+    private Integer yayinId; // MongoDB ObjectId formatında bir alan kullanılmalıdır
 
     private String yayinAdi;
 
