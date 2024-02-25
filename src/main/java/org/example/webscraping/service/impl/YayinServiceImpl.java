@@ -64,6 +64,13 @@ public class YayinServiceImpl implements YayinService {
                         // urlSub'deki sayfadaki tüm öğeleri çekip yazdır
                         Document subDoc = Jsoup.connect(urlSub).get();
 
+                        Elements allElements = subDoc.getAllElements();
+
+                        // Tüm öğeleri yazdır
+                        for (Element element : allElements) {
+                            System.out.println(element);
+                        }
+
                         System.out.println("deneme4 ");
                         String baslik = subDoc.select("td.metadata_label:contains(Başlık) + td.metadata_value span").text();
                         String yazar = subDoc.select("td.metadata_label:contains(Yazar) + td.metadata_value span").text();
