@@ -16,6 +16,9 @@ public class MakaleTerimleri {
     @Id
     private String makaleninterimId;
 
+    private  String anahtarKelime;
+
     private Yayin yayin;
+
 
 }

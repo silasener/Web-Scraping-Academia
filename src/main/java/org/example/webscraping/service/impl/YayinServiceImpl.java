@@ -113,6 +113,68 @@ public class YayinServiceImpl implements YayinService {
         }
     }
 
+    public void yayinCek2() {
+        List<Yayin> cekilenYayinlar = new ArrayList<>();
+        String keywords = "machine learning";
+        int targetCount = 5; // Hedeflenen veri sayısı
+        int currentPage = 1;
+
+        try {
+            while (cekilenYayinlar.size() < targetCount) {
+                String searchUrl = currentPage == 1 ? "https://scholar.google.com.tr/scholar?q=" + keywords :
+                        "https://scholar.google.com.tr/scholar?q=" + keywords + "&start=" + ((currentPage - 1) * 10);
+
+                Document document = Jsoup.connect(searchUrl).get();
+                Elements results = document.select("div.gs_ri");
+
+                for (Element result : results) {
+                    String fullInfo = result.select("div.gs_a").text();
+                    if (fullInfo.contains("books.google.com")) {
+                        String urlmain = result.select("h3.gs_rt a").attr("href");
+                        Document doc = Jsoup.connect(urlmain).get();
+                        String urlSub = doc.select("a#sidebar-atb-link").attr("href");
+                        Document subDoc = Jsoup.connect(urlSub).get();
+
+                        String baslik = subDoc.select("td.metadata_label:contains(Başlık) + td.metadata_value span").text();
+                        String yazar = subDoc.select("td.metadata_label:contains(Yazar) + td.metadata_value span").text();
+                        String yayinciTarih = subDoc.select("td.metadata_label:contains(Yayıncı) + td.metadata_value span").text();
+                        String[] yayinciTarihArray = yayinciTarih.split(",\\s+");
+
+                        Yayin yeniYayin = new Yayin();
+                        yeniYayin.setYayinAdi(baslik);
+                        yeniYayin.setYazarIsmi(yazar);
+                        yeniYayin.setYayinTuru("tür");
+
+                        String yayinci = yayinciTarihArray[0];
+                        String yayinlanmaTarihi = yayinciTarihArray[1];
+                        yeniYayin.setYayimlanmaTarihi(Integer.parseInt(yayinlanmaTarihi));
+                        yeniYayin.setYayinciAdi(yayinci);
+                        yeniYayin.setOzet("özet");
+                        yeniYayin.setAlintiSayisi(10);
+                        yeniYayin.setDoiNumarasi("doi");
+                        yeniYayin.setUrlAdresi(urlmain);
+                        cekilenYayinlar.add(yeniYayin);
+                        yayinRepo.save(yeniYayin);
+
+                        if (cekilenYayinlar.size() >= targetCount) {
+                            break; // Hedef veri sayısına ulaşıldıysa döngüden çık
+                        }
+                    }
+                }
+
+                Element nextPage = document.select("span.gs_ico_nav_next").first();
+                if (nextPage == null) {
+                    // "Sonraki" bağlantısı yoksa çık
+                    break;
+                }
+
+                currentPage++;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
 
 }

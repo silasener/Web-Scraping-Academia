@@ -8,5 +8,6 @@ import java.util.List;
 @Component
 public interface YayinService {
     void yayinCek();
+  void yayinCek2();
 
 }
