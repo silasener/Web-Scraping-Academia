@@ -31,14 +31,6 @@ public class WebScrapingController {
     }
 
 
-    @GetMapping("/yayinçek2")
-    public ResponseEntity<String> getAllYayinCek2() {
-        yayinService.yayinCek2();
-
-
-        return ResponseEntity.ok("Yayın çekildi");
-    }
-
     @PostMapping("/yayinEkle/{yayinId}/{yayinAdi}")
     public ResponseEntity<String> yayinEkle(@PathVariable String yayinId, @PathVariable String yayinAdi) {
         try {
