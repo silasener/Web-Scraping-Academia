@@ -7,6 +7,8 @@ import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.UUID;
+
 @Document("yayin")
 @Getter
 @Setter
@@ -14,11 +16,30 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @AllArgsConstructor
 public class Yayin {
     @Id
-    private Integer yayinId; // MongoDB ObjectId formatında bir alan kullanılmalıdır
+    private String yayinId;
 
     private String yayinAdi;
 
+    private String yazarIsmi;
 
+    private String yayinTuru; //araştırma makalesi, derleme, konferans, kitap vb.
+
+    private Integer yayimlanmaTarihi;
+
+    private String yayinciAdi; //yayının yayımlandığı konferans ismi; dergi veya kitap yayınevi
+
+    private String ozet;
+
+    private Integer alintiSayisi;
+
+    private String doiNumarasi;
+
+    private String urlAdresi;
+
+    public Yayin(String yayinId, String yayinAdi) {
+        this.yayinId = yayinId;
+        this.yayinAdi = yayinAdi;
+    }
 }
 
 
