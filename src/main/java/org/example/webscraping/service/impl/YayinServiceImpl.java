@@ -32,10 +32,11 @@ public class YayinServiceImpl implements YayinService {
         String searchUrl = null;
 
         int currentPage = 1;
-        int targetCount = 10; // Hedeflenen veri sayısı
+        int targetCount = 1; // Hedeflenen veri sayısı
 
         try {
             while (cekilenYayinlar.size() < targetCount) {
+                System.out.println("deneme1 ");
                 // Google Akademik arama URL'si oluşturma
                 if (currentPage == 1) {
                     searchUrl = "https://scholar.google.com.tr/scholar?q=" + keywords;
@@ -43,28 +44,14 @@ public class YayinServiceImpl implements YayinService {
                     searchUrl = "https://scholar.google.com.tr/scholar?q=" + keywords + "&start=" + ((currentPage - 1) * 10);
                 }
 
+                System.out.println("deneme2 ");
                 Document document = Jsoup.connect(searchUrl).get();
                 Elements results = document.select("div.gs_ri");
 
                 for (Element result : results) {
+                    System.out.println("deneme3 ");
                     String fullInfo = result.select("div.gs_a").text();
                     if (fullInfo.contains("books.google.com")) {
-                        String title = result.select("h3.gs_rt a").text(); //yayın adı
-                        String[] infoArray = fullInfo.split(" - ");
-
-                        String authors = infoArray[0].trim();
-                        String publicationDate = infoArray[1].trim();
-
-
-                        String publicationType = result.select("div.gs_a").text(); // Yayın türü
-                        // String publicationType = result.select("div.gs_a:contains(Araştırma makalesi)").text();
-                        String publisherName = result.select("div.gs_a").text(); // Yayıncı adı
-                        String keywordsSearchEngine = result.select("div.gs_a").text(); // Anahtar kelimeler (Arama motorunda aratılan)
-                        String keywordsArticle = result.select("div.gs_a").text(); // Anahtar kelimeler (Makaleye ait)
-                        String abstractText = result.select("div.gs_a").text(); // Özet
-                        String references = result.select("div.gs_a").text(); // Referanslar
-                        // int citationCount = Integer.parseInt(result.select("div.gs_a").text()); // Alıntı sayısı
-                        String doiNumber = result.select("div.gs_a").text(); // Doi numarası
                         String urlmain = result.select("h3.gs_rt a").attr("href");
 
 
@@ -72,33 +59,45 @@ public class YayinServiceImpl implements YayinService {
                         Document doc = Jsoup.connect(urlmain).get();
                         String urlSub = doc.select("a#sidebar-atb-link").attr("href");
 
-                        System.out.println(urlSub);
+                        System.out.println("URL Sub: " + urlSub);
 
+                        // urlSub'deki sayfadaki tüm öğeleri çekip yazdır
+                        Document subDoc = Jsoup.connect(urlSub).get();
 
-
-                        // URL adresi
+                        System.out.println("deneme4 ");
+                        String baslik = subDoc.select("td.metadata_label:contains(Başlık) + td.metadata_value span").text();
+                        String yazar = subDoc.select("td.metadata_label:contains(Yazar) + td.metadata_value span").text();
+                        String yayinciTarih = subDoc.select("td.metadata_label:contains(Yayıncı) + td.metadata_value span").text();
+                        String[] yayinciTarihArray = yayinciTarih.split(",\\s+");
 
 
                         Yayin yeniYayin = new Yayin();
-                        yeniYayin.setYayinAdi(title);
-                        yeniYayin.setYazarIsmi(authors);
-                        yeniYayin.setYayinTuru(publicationType);
-                       // yeniYayin.setYayimlanmaTarihi(Integer.parseInt(publicationDate));
-                        yeniYayin.setYayinciAdi(publisherName);
-                        yeniYayin.setOzet(abstractText);
+                        yeniYayin.setYayinAdi(baslik);
+                        yeniYayin.setYazarIsmi(yazar);
+                        yeniYayin.setYayinTuru("tür");
+
+                            String yayinci = yayinciTarihArray[0];
+                            String yayinlanmaTarihi = yayinciTarihArray[1];
+                            yeniYayin.setYayimlanmaTarihi(Integer.parseInt(yayinlanmaTarihi));
+                            yeniYayin.setYayinciAdi(yayinci);
+                        yeniYayin.setOzet("özet");
                         yeniYayin.setAlintiSayisi(10);
-                        yeniYayin.setDoiNumarasi(doiNumber);
+                        yeniYayin.setDoiNumarasi("doi");
                         yeniYayin.setUrlAdresi(urlmain);
                         cekilenYayinlar.add(yeniYayin);
                         yayinRepo.save(yeniYayin);
+                        System.out.println("deneme5 ");
 
                         if (cekilenYayinlar.size() >= targetCount) {
+                            System.out.println("deneme6 ");
                             break; // Hedef veri sayısına ulaşıldıysa döngüden çık
                         }
                     }
+                    System.out.println("deneme7 ");
                 }
 
                 // Sayfa sayısını kontrol et
+                System.out.println("deneme8 ");
                 Element nextPage = document.select("span.gs_ico_nav_next").first();
                 if (nextPage == null) {
                     System.out.printf("sayfa bitti"+currentPage);
@@ -106,6 +105,7 @@ public class YayinServiceImpl implements YayinService {
                     break;
                 }
 
+                System.out.println("deneme9 ");
                 currentPage++;
             }
         } catch (IOException e) {
