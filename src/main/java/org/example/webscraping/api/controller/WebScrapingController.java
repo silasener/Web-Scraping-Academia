@@ -18,15 +18,15 @@ public class WebScrapingController {
 
 
     @GetMapping("/yayin")
-    public ResponseEntity<String> getAllYayin(){
+    public ResponseEntity<String> getAllYayin() {
         yayinService.yayinCek();
         return ResponseEntity.ok("Yayın çekildi");
     }
 
     @PostMapping("/yayinEkle/{yayinId}/{yayinAdi}")
-    public ResponseEntity<String> yayinEkle(@PathVariable String yayinId,@PathVariable String yayinAdi) {
+    public ResponseEntity<String> yayinEkle(@PathVariable String yayinId, @PathVariable String yayinAdi) {
         try {
-            Yayin yayin=new Yayin(yayinId,yayinAdi);
+            Yayin yayin = new Yayin(yayinId, yayinAdi);
             yayinRepo.save(yayin);
             return ResponseEntity.ok("Yayın eklendi.");
         } catch (Exception e) {
