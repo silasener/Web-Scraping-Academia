@@ -65,7 +65,18 @@ public class YayinServiceImpl implements YayinService {
                         String references = result.select("div.gs_a").text(); // Referanslar
                         // int citationCount = Integer.parseInt(result.select("div.gs_a").text()); // Alıntı sayısı
                         String doiNumber = result.select("div.gs_a").text(); // Doi numarası
-                        String url = result.select("h3.gs_rt a").attr("href"); // URL adresi
+                        String urlmain = result.select("h3.gs_rt a").attr("href");
+
+
+// urlmain'i kullanarak başka bir URL'ye eriş
+                        Document doc = Jsoup.connect(urlmain).get();
+                        String urlSub = doc.select("a#sidebar-atb-link").attr("href");
+
+                        System.out.println(urlSub);
+
+
+
+                        // URL adresi
 
 
                         Yayin yeniYayin = new Yayin();
@@ -77,7 +88,7 @@ public class YayinServiceImpl implements YayinService {
                         yeniYayin.setOzet(abstractText);
                         yeniYayin.setAlintiSayisi(10);
                         yeniYayin.setDoiNumarasi(doiNumber);
-                        yeniYayin.setUrlAdresi(url);
+                        yeniYayin.setUrlAdresi(urlmain);
                         cekilenYayinlar.add(yeniYayin);
                         yayinRepo.save(yeniYayin);
 
