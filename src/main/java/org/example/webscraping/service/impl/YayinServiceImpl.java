@@ -6,16 +6,16 @@ import org.example.webscraping.domain.Yayin;
 import org.example.webscraping.repo.MakaleTerimleriRepo;
 import org.example.webscraping.repo.YayinRepo;
 import org.example.webscraping.service.YayinService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import java.util.ArrayList;
-import java.util.List;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import java.io.IOException;
-import java.util.Objects;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @AllArgsConstructor
@@ -30,10 +30,8 @@ public class YayinServiceImpl implements YayinService {
 
 
     @Override
-    public void yayinCek() {
+    public void yayinCek(String anahtarKelime) {
         List<Yayin> cekilenYayinlar = new ArrayList<>();
-
-        String keywords = "machine learning";
         String searchUrl = null;
 
         int currentPage = 1;
@@ -43,9 +41,9 @@ public class YayinServiceImpl implements YayinService {
             while (cekilenYayinlar.size() < targetCount) {
                 // Google Akademik arama URL'si oluşturma
                 if (currentPage == 1) {
-                    searchUrl = "https://scholar.google.com.tr/scholar?q=" + keywords;
+                    searchUrl = "https://scholar.google.com.tr/scholar?q=" + anahtarKelime;
                 } else {
-                    searchUrl = "https://scholar.google.com.tr/scholar?q=" + keywords + "&start=" + ((currentPage - 1) * 10);
+                    searchUrl = "https://scholar.google.com.tr/scholar?q=" + anahtarKelime + "&start=" + ((currentPage - 1) * 10);
                 }
 
                 Document document = Jsoup.connect(searchUrl).get();
@@ -57,7 +55,7 @@ public class YayinServiceImpl implements YayinService {
                         String urlmain = result.select("h3.gs_rt a").attr("href");
 
 
-// urlmain'i kullanarak başka bir URL'ye eriş
+                        // urlmain'i kullanarak başka bir URL'ye eriş
                         Document doc = Jsoup.connect(urlmain).get();
                         String urlSub = doc.select("a#sidebar-atb-link").attr("href");
 
@@ -84,10 +82,10 @@ public class YayinServiceImpl implements YayinService {
                         yeniYayin.setYazarIsmi(yazar);
                         yeniYayin.setYayinTuru("tür");
 
-                            String yayinci = yayinciTarihArray[0];
-                            String yayinlanmaTarihi = yayinciTarihArray[1];
-                            yeniYayin.setYayimlanmaTarihi(Integer.parseInt(yayinlanmaTarihi));
-                            yeniYayin.setYayinciAdi(yayinci);
+                        String yayinci = yayinciTarihArray[0];
+                        String yayinlanmaTarihi = yayinciTarihArray[1];
+                        yeniYayin.setYayimlanmaTarihi(Integer.parseInt(yayinlanmaTarihi));
+                        yeniYayin.setYayinciAdi(yayinci);
                         yeniYayin.setOzet("özet");
                         yeniYayin.setAlintiSayisi(10);
                         yeniYayin.setDoiNumarasi("doi");
@@ -98,7 +96,7 @@ public class YayinServiceImpl implements YayinService {
                         Elements cloudElements = subDoc.select("a[class^=cloud] span[dir=ltr]");
 
                         for (Element cloudElement : cloudElements) {
-                            MakaleTerimleri yeniMakaleTerimleri=new MakaleTerimleri();
+                            MakaleTerimleri yeniMakaleTerimleri = new MakaleTerimleri();
                             yeniMakaleTerimleri.setYayin(yeniYayin);
                             yeniMakaleTerimleri.setAnahtarKelime(cloudElement.text());
                             makaleTerimleriRepo.save(yeniMakaleTerimleri);
@@ -125,6 +123,10 @@ public class YayinServiceImpl implements YayinService {
         }
     }
 
+    @Override
+    public List<Yayin> yayinlarigoruntule() {
+        return yayinRepo.findAll();
+    }
 
 
 }

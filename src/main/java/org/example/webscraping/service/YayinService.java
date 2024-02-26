@@ -7,6 +7,8 @@ import java.util.List;
 
 @Component
 public interface YayinService {
-    void yayinCek();
+    void yayinCek(String anahtarKelime);
+
+    List<Yayin> yayinlarigoruntule();
 
 }

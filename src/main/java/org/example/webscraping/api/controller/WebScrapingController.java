@@ -24,10 +24,16 @@ public class WebScrapingController {
     private MakaleTerimleriRepo makaleTerimleriRepo;
 
 
-    @GetMapping("/yayin")
-    public ResponseEntity<String> getAllYayin() {
-        yayinService.yayinCek();
+    @GetMapping("/anahtarKelimeyeGoreYayinCek")
+    public ResponseEntity<String> getAllYayin(@RequestParam String anahtarKelime) {
+        yayinService.yayinCek(anahtarKelime);
         return ResponseEntity.ok("Yayın çekildi");
+    }
+
+    @GetMapping("/yayinlariGetir")
+    public ResponseEntity<List<Yayin>> getVeritabanindakiYayinlar() {
+        List<Yayin> yayinlar=yayinService.yayinlarigoruntule();
+        return ResponseEntity.ok(yayinlar);
     }
 
 
