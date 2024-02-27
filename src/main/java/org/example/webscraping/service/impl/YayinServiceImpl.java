@@ -6,16 +6,16 @@ import org.example.webscraping.domain.Yayin;
 import org.example.webscraping.repo.MakaleTerimleriRepo;
 import org.example.webscraping.repo.YayinRepo;
 import org.example.webscraping.service.YayinService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import java.util.ArrayList;
-import java.util.List;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import java.io.IOException;
-import java.util.Objects;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @AllArgsConstructor
@@ -30,10 +30,10 @@ public class YayinServiceImpl implements YayinService {
 
 
     @Override
-    public void yayinCek() {
+    public void yayinCek (String searchKeyword) {
         List<Yayin> cekilenYayinlar = new ArrayList<>();
 
-        String keywords = "machine learning";
+        String keywords = searchKeyword;
         String searchUrl = null;
 
         int currentPage = 1;
@@ -84,10 +84,10 @@ public class YayinServiceImpl implements YayinService {
                         yeniYayin.setYazarIsmi(yazar);
                         yeniYayin.setYayinTuru("tür");
 
-                            String yayinci = yayinciTarihArray[0];
-                            String yayinlanmaTarihi = yayinciTarihArray[1];
-                            yeniYayin.setYayimlanmaTarihi(Integer.parseInt(yayinlanmaTarihi));
-                            yeniYayin.setYayinciAdi(yayinci);
+                        String yayinci = yayinciTarihArray[0];
+                        String yayinlanmaTarihi = yayinciTarihArray[1];
+                        yeniYayin.setYayimlanmaTarihi(Integer.parseInt(yayinlanmaTarihi));
+                        yeniYayin.setYayinciAdi(yayinci);
                         yeniYayin.setOzet("özet");
                         yeniYayin.setAlintiSayisi(10);
                         yeniYayin.setDoiNumarasi("doi");
@@ -98,7 +98,7 @@ public class YayinServiceImpl implements YayinService {
                         Elements cloudElements = subDoc.select("a[class^=cloud] span[dir=ltr]");
 
                         for (Element cloudElement : cloudElements) {
-                            MakaleTerimleri yeniMakaleTerimleri=new MakaleTerimleri();
+                            MakaleTerimleri yeniMakaleTerimleri = new MakaleTerimleri();
                             yeniMakaleTerimleri.setYayin(yeniYayin);
                             yeniMakaleTerimleri.setAnahtarKelime(cloudElement.text());
                             makaleTerimleriRepo.save(yeniMakaleTerimleri);
@@ -127,4 +127,12 @@ public class YayinServiceImpl implements YayinService {
 
 
 
+
+    @Override
+    public List<Yayin> yayinlariTariheGoreSirala() {
+
+        List<Yayin> sortedYayinList = yayinRepo.findAllOrderByYayimlanmaTarihiAsc();
+
+        return sortedYayinList;
+    }
 }
