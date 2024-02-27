@@ -30,10 +30,8 @@ public class YayinServiceImpl implements YayinService {
 
 
     @Override
-    public void yayinCek (String searchKeyword) {
+    public void yayinCek(String anahtarKelime) {
         List<Yayin> cekilenYayinlar = new ArrayList<>();
-
-        String keywords = searchKeyword;
         String searchUrl = null;
 
         int currentPage = 1;
@@ -43,9 +41,9 @@ public class YayinServiceImpl implements YayinService {
             while (cekilenYayinlar.size() < targetCount) {
                 // Google Akademik arama URL'si oluşturma
                 if (currentPage == 1) {
-                    searchUrl = "https://scholar.google.com.tr/scholar?q=" + keywords;
+                    searchUrl = "https://scholar.google.com.tr/scholar?q=" + anahtarKelime;
                 } else {
-                    searchUrl = "https://scholar.google.com.tr/scholar?q=" + keywords + "&start=" + ((currentPage - 1) * 10);
+                    searchUrl = "https://scholar.google.com.tr/scholar?q=" + anahtarKelime + "&start=" + ((currentPage - 1) * 10);
                 }
 
                 Document document = Jsoup.connect(searchUrl).get();
@@ -57,7 +55,7 @@ public class YayinServiceImpl implements YayinService {
                         String urlmain = result.select("h3.gs_rt a").attr("href");
 
 
-// urlmain'i kullanarak başka bir URL'ye eriş
+                        // urlmain'i kullanarak başka bir URL'ye eriş
                         Document doc = Jsoup.connect(urlmain).get();
                         String urlSub = doc.select("a#sidebar-atb-link").attr("href");
 
@@ -125,14 +123,10 @@ public class YayinServiceImpl implements YayinService {
         }
     }
 
-
-
-
     @Override
-    public List<Yayin> yayinlariTariheGoreSirala() {
-
-        List<Yayin> sortedYayinList = yayinRepo.findAllOrderByYayimlanmaTarihiAsc();
-
-        return sortedYayinList;
+    public List<Yayin> yayinlarigoruntule() {
+        return yayinRepo.findAll();
     }
+
+
 }

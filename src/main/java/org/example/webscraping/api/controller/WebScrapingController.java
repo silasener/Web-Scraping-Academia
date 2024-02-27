@@ -24,27 +24,16 @@ public class WebScrapingController {
     private MakaleTerimleriRepo makaleTerimleriRepo;
 
 
-    @PostMapping("/yayin/{keyword}")
-    public ResponseEntity<String> getAllYayin(@PathVariable String keyword) {
-        yayinService.yayinCek(keyword);
-
-        return ResponseEntity.ok(keyword+"yayinlari  çekildi");
+    @GetMapping("/anahtarKelimeyeGoreYayinCek")
+    public ResponseEntity<String> getAllYayin(@RequestParam String anahtarKelime) {
+        yayinService.yayinCek(anahtarKelime);
+        return ResponseEntity.ok("Yayın çekildi");
     }
 
-
-    @GetMapping("/yayinlarıgöster")
-    public ResponseEntity<List<Yayin>> yayinlarilistele (){
-        List<Yayin>yayinlarigoster =yayinRepo.findAll();
-
-        return ResponseEntity.ok(yayinlarigoster);
-    }
-
-
-    @GetMapping("/yayintarihegGoreSirala")
-    public ResponseEntity<List<Yayin>> tariheGoreSiraliListe() {
-       List<Yayin>yayinlariTariheGoreSiralaList =yayinService.yayinlariTariheGoreSirala();
-
-        return ResponseEntity.ok(yayinlariTariheGoreSiralaList);
+    @GetMapping("/yayinlariGetir")
+    public ResponseEntity<List<Yayin>> getVeritabanindakiYayinlar() {
+        List<Yayin> yayinlar=yayinService.yayinlarigoruntule();
+        return ResponseEntity.ok(yayinlar);
     }
 
 
