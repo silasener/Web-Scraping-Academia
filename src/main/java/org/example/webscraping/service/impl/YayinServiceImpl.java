@@ -32,19 +32,16 @@ public class YayinServiceImpl implements YayinService {
     @Override
     public void yayinCek(String anahtarKelime) {
         List<Yayin> cekilenYayinlar = new ArrayList<>();
-        String searchUrl = null;
-
+        String searchUrl;
         int currentPage = 1;
         int targetCount = 5; // Hedeflenen veri sayısı
 
         try {
             while (cekilenYayinlar.size() < targetCount) {
                 // Google Akademik arama URL'si oluşturma
-                if (currentPage == 1) {
-                    searchUrl = "https://scholar.google.com.tr/scholar?q=" + anahtarKelime;
-                } else {
-                    searchUrl = "https://scholar.google.com.tr/scholar?q=" + anahtarKelime + "&start=" + ((currentPage - 1) * 10);
-                }
+                searchUrl = (currentPage == 1) ?
+                        "https://scholar.google.com.tr/scholar?q=" + anahtarKelime :
+                        "https://scholar.google.com.tr/scholar?q=" + anahtarKelime + "&start=" + ((currentPage - 1) * 10);
 
                 Document document = Jsoup.connect(searchUrl).get();
                 Elements results = document.select("div.gs_ri");
@@ -53,7 +50,6 @@ public class YayinServiceImpl implements YayinService {
                     String fullInfo = result.select("div.gs_a").text();
                     if (fullInfo.contains("books.google.com")) {
                         String urlmain = result.select("h3.gs_rt a").attr("href");
-
 
                         // urlmain'i kullanarak başka bir URL'ye eriş
                         Document doc = Jsoup.connect(urlmain).get();
@@ -64,25 +60,15 @@ public class YayinServiceImpl implements YayinService {
                         // urlSub'deki sayfadaki tüm öğeleri çekip yazdır
                         Document subDoc = Jsoup.connect(urlSub).get();
 
-                        Elements allElements = subDoc.getAllElements();
-
-                        // Tüm öğeleri yazdır
-                       /* for (Element element : allElements) {
-                            System.out.println(element);
-                        }
-
-                        */
-
                         String baslik = subDoc.select("td.metadata_label:contains(Başlık) + td.metadata_value span").text();
                         String yazar = subDoc.select("td.metadata_label:contains(Yazar) + td.metadata_value span").text();
                         String yayinciTarih = subDoc.select("td.metadata_label:contains(Yayıncı) + td.metadata_value span").text();
                         String[] yayinciTarihArray = yayinciTarih.split(",\\s+");
 
-                        Yayin yayinBulundu=yayinRepo.findByUrlAdresi(urlmain);
+                        // Yayının zaten veritabanında olup olmadığını kontrol edin
+                        Yayin yayinBulundu = yayinRepo.findByUrlAdresi(urlmain);
 
-                        if(Objects.nonNull(yayinBulundu)){
-
-                        }else{
+                        if (Objects.isNull(yayinBulundu)) {
                             Yayin yeniYayin = new Yayin();
                             yeniYayin.setYayinAdi(baslik);
                             yeniYayin.setYazarIsmi(yazar);
@@ -90,7 +76,14 @@ public class YayinServiceImpl implements YayinService {
 
                             String yayinci = yayinciTarihArray[0];
                             String yayinlanmaTarihi = yayinciTarihArray[1];
-                            yeniYayin.setYayimlanmaTarihi(Integer.parseInt(yayinlanmaTarihi));
+                            try {
+                                yeniYayin.setYayimlanmaTarihi(Integer.parseInt(yayinlanmaTarihi));
+                            } catch (NumberFormatException e) {
+                                // Tarih değeri uygun formatta değilse hata mesajını yazdırın ve bu yayını atlayın
+                                System.err.println("Geçersiz yayınlanma tarihi formatı: " + yayinlanmaTarihi);
+                                continue;
+                            }
+
                             yeniYayin.setYayinciAdi(yayinci);
                             yeniYayin.setOzet("özet");
                             yeniYayin.setAlintiSayisi(10);
@@ -113,7 +106,6 @@ public class YayinServiceImpl implements YayinService {
                             break; // Hedef veri sayısına ulaşıldıysa döngüden çık
                         }
                     }
-
                 }
 
                 // Sayfa sayısını kontrol et
