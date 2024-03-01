@@ -35,7 +35,7 @@ public class YayinServiceImpl implements YayinService {
         String searchUrl = null;
 
         int currentPage = 1;
-        int targetCount = 5; // Hedeflenen veri sayısı
+        int targetCount = 10; // Hedeflenen veri sayısı
 
         try {
             while (cekilenYayinlar.size() < targetCount) {
@@ -67,18 +67,31 @@ public class YayinServiceImpl implements YayinService {
                         Elements allElements = subDoc.getAllElements();
 
                         // Tüm öğeleri yazdır
-                       /* for (Element element : allElements) {
+                      /* for (Element element : allElements) {
                             System.out.println(element);
                         }
 
-                        */
+                       */
 
                         String baslik = subDoc.select("td.metadata_label:contains(Başlık) + td.metadata_value span").text();
                         String yazar = subDoc.select("td.metadata_label:contains(Yazar) + td.metadata_value span").text();
+
+                        String editorler= subDoc.select("td.metadata_label:contains(Editörler) + td.metadata_value span").text();
+                        String editor= subDoc.select("td.metadata_label:contains(Editör) + td.metadata_value span").text();
+                        System.out.println("yazar yazdırma: "+yazar);
+
+                        if(yazar.equals("") && Objects.nonNull(editorler)){
+                           // System.out.println("editorleri yazdırdı"+editorler);
+                            yazar=editorler;
+                        }else if(yazar.equals("") && Objects.nonNull(editor)){
+                            //System.out.println("editoru yazdırdı"+editor);
+                            yazar=editor;
+                        }
+
                         String yayinciTarih = subDoc.select("td.metadata_label:contains(Yayıncı) + td.metadata_value span").text();
                         String[] yayinciTarihArray = yayinciTarih.split(",\\s+");
 
-                        Yayin yayinBulundu=yayinRepo.findByUrlAdresi(urlmain);
+                        Yayin yayinBulundu=yayinRepo.findByYayinAdiAndYazarAdi(baslik,yazar);
 
                         if(Objects.nonNull(yayinBulundu)){
 
