@@ -14,8 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 @AllArgsConstructor
@@ -35,7 +35,7 @@ public class YayinServiceImpl implements YayinService {
         String searchUrl = null;
 
         int currentPage = 1;
-        int targetCount = 1; // Hedeflenen veri sayısı
+        int targetCount = 5; // Hedeflenen veri sayısı
 
         try {
             while (cekilenYayinlar.size() < targetCount) {
@@ -67,39 +67,46 @@ public class YayinServiceImpl implements YayinService {
                         Elements allElements = subDoc.getAllElements();
 
                         // Tüm öğeleri yazdır
-                        for (Element element : allElements) {
+                       /* for (Element element : allElements) {
                             System.out.println(element);
                         }
+
+                        */
 
                         String baslik = subDoc.select("td.metadata_label:contains(Başlık) + td.metadata_value span").text();
                         String yazar = subDoc.select("td.metadata_label:contains(Yazar) + td.metadata_value span").text();
                         String yayinciTarih = subDoc.select("td.metadata_label:contains(Yayıncı) + td.metadata_value span").text();
                         String[] yayinciTarihArray = yayinciTarih.split(",\\s+");
 
+                        Yayin yayinBulundu=yayinRepo.findByUrlAdresi(urlmain);
 
-                        Yayin yeniYayin = new Yayin();
-                        yeniYayin.setYayinAdi(baslik);
-                        yeniYayin.setYazarIsmi(yazar);
-                        yeniYayin.setYayinTuru("tür");
+                        if(Objects.nonNull(yayinBulundu)){
 
-                        String yayinci = yayinciTarihArray[0];
-                        String yayinlanmaTarihi = yayinciTarihArray[1];
-                        yeniYayin.setYayimlanmaTarihi(Integer.parseInt(yayinlanmaTarihi));
-                        yeniYayin.setYayinciAdi(yayinci);
-                        yeniYayin.setOzet("özet");
-                        yeniYayin.setAlintiSayisi(10);
-                        yeniYayin.setDoiNumarasi("doi");
-                        yeniYayin.setUrlAdresi(urlmain);
-                        cekilenYayinlar.add(yeniYayin);
-                        yayinRepo.save(yeniYayin);
+                        }else{
+                            Yayin yeniYayin = new Yayin();
+                            yeniYayin.setYayinAdi(baslik);
+                            yeniYayin.setYazarIsmi(yazar);
+                            yeniYayin.setYayinTuru("tür");
 
-                        Elements cloudElements = subDoc.select("a[class^=cloud] span[dir=ltr]");
+                            String yayinci = yayinciTarihArray[0];
+                            String yayinlanmaTarihi = yayinciTarihArray[1];
+                            yeniYayin.setYayimlanmaTarihi(Integer.parseInt(yayinlanmaTarihi));
+                            yeniYayin.setYayinciAdi(yayinci);
+                            yeniYayin.setOzet("özet");
+                            yeniYayin.setAlintiSayisi(10);
+                            yeniYayin.setDoiNumarasi("doi");
+                            yeniYayin.setUrlAdresi(urlmain);
+                            cekilenYayinlar.add(yeniYayin);
+                            yayinRepo.save(yeniYayin);
 
-                        for (Element cloudElement : cloudElements) {
-                            MakaleTerimleri yeniMakaleTerimleri = new MakaleTerimleri();
-                            yeniMakaleTerimleri.setYayin(yeniYayin);
-                            yeniMakaleTerimleri.setAnahtarKelime(cloudElement.text());
-                            makaleTerimleriRepo.save(yeniMakaleTerimleri);
+                            Elements cloudElements = subDoc.select("a[class^=cloud] span[dir=ltr]");
+
+                            for (Element cloudElement : cloudElements) {
+                                MakaleTerimleri yeniMakaleTerimleri = new MakaleTerimleri();
+                                yeniMakaleTerimleri.setYayin(yeniYayin);
+                                yeniMakaleTerimleri.setAnahtarKelime(cloudElement.text());
+                                makaleTerimleriRepo.save(yeniMakaleTerimleri);
+                            }
                         }
 
                         if (cekilenYayinlar.size() >= targetCount) {
@@ -125,7 +132,60 @@ public class YayinServiceImpl implements YayinService {
 
     @Override
     public List<Yayin> yayinlarigoruntule() {
-        return yayinRepo.findAll();
+        List<Yayin> yayinList=yayinRepo.findAll();
+        Set<String> uniqueYazarYayin = new HashSet<>();
+        List<Yayin> uniqueYayinlar = yayinList.stream()
+                .filter(yayin -> uniqueYazarYayin.add(yayin.getYazarIsmi() + yayin.getYayinAdi()))
+                .toList();
+
+        return uniqueYayinlar;
+    }
+
+    @Override
+    public List<String> yazarlariGoruntule() {
+        List<Yayin> yayinList = yayinRepo.findAllYazarIsmi();
+        List<String> yazarIsmiList = yayinList.stream()
+                .map(Yayin::getYazarIsmi)
+                .collect(Collectors.toList());
+
+        Set<String> uniqueYazarlar = new HashSet<>(yazarIsmiList);
+        List<String> uniqueYazarlarList = new ArrayList<>(uniqueYazarlar);
+        return uniqueYazarlarList;
+    }
+
+    @Override
+    public List<String> eserAdlariniGoruntule() {
+        List<Yayin> yayinList=yayinRepo.findAll();
+        List<String> yayinAdiList = yayinList.stream()
+                .map(Yayin::getYayinAdi)
+                .collect(Collectors.toList());
+
+        Set<String> uniqueYayinAdlari = new HashSet<>(yayinAdiList);
+        List<String> uniqueYayinAdlariList= new ArrayList<>(uniqueYayinAdlari);
+        return uniqueYayinAdlariList;
+    }
+
+    @Override
+    public List<Yayin> yayinlariTariheGoreSirala(String siralamaTipi, List<Yayin> filtreliListe) {
+
+        if ("yenidenEskiye".equals(siralamaTipi)) {
+            filtreliListe.sort(Comparator.comparing(Yayin::getYayimlanmaTarihi));
+        }else if ("eskidenYeniye".equals(siralamaTipi)) {
+            filtreliListe.sort(Comparator.comparing(Yayin::getYayimlanmaTarihi).reversed());
+        }
+        return filtreliListe;
+    }
+
+    @Override
+    public List<String> yayinciAdlariniGoruntule() {
+        List<Yayin> yayinList=yayinRepo.findAll();
+        List<String> yayinciAdiList = yayinList.stream()
+                .map(Yayin::getYayinciAdi)
+                .collect(Collectors.toList());
+
+        Set<String> uniqueYayinciAdlari = new HashSet<>(yayinciAdiList);
+        List<String> uniqueYayinAdlariList= new ArrayList<>(uniqueYayinciAdlari);
+        return uniqueYayinAdlariList;
     }
 
 

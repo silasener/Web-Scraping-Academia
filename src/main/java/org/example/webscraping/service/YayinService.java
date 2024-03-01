@@ -11,4 +11,12 @@ public interface YayinService {
 
     List<Yayin> yayinlarigoruntule();
 
+    List<String> yazarlariGoruntule();
+
+    List<String> eserAdlariniGoruntule();
+
+    List<Yayin> yayinlariTariheGoreSirala(String siralamaTipi,List<Yayin> filtreliListe);
+
+    List<String> yayinciAdlariniGoruntule();
+
 }
