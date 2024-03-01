@@ -15,8 +15,6 @@ public interface YayinService {
 
     List<String> eserAdlariniGoruntule();
 
-    List<Yayin> yayinlariTariheGoreSirala(String siralamaTipi,List<Yayin> filtreliListe);
-
     List<String> yayinciAdlariniGoruntule();
 
 }

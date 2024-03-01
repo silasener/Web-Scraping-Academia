@@ -70,12 +70,7 @@ public class WebScrapingController {
         List<String> eserAdlari=yayinService.eserAdlariniGoruntule();
         return ResponseEntity.ok(eserAdlari);
     }
-
-    @GetMapping("/yayinlarinTarihleriniSirala")
-    public ResponseEntity<List<Yayin>> getYayinlar(@RequestParam(defaultValue = "yenidenEskiye") String siralamaTipi,@RequestParam List<Yayin> filtreliListe) {
-        List<Yayin> tariheGoreSiralanmisYayinlar = yayinService.yayinlariTariheGoreSirala(siralamaTipi,filtreliListe);
-        return ResponseEntity.ok(tariheGoreSiralanmisYayinlar);
-    }
+    
 
     @GetMapping("/yayinciAdlariniGetir")
     public ResponseEntity<List<String>> getYayinciAdlari() {
