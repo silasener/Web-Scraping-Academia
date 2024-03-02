@@ -30,6 +30,7 @@ public class YayinServiceImpl implements YayinService {
     @Autowired
     private MakaleTerimleriRepo makaleTerimleriRepo;
 
+    private static Integer yayinSizeCheck;
 
     @Override
     public void yayinCek(String anahtarKelime) {
@@ -147,24 +148,45 @@ public class YayinServiceImpl implements YayinService {
 
     @Override
     public void yayinCek2(String anahtarKelime) {
+        yayinSizeCheck=0;
+        int pageCount = 1;
         String mainurl = "https://link.springer.com/search?facet-content-type=Book&query=" + anahtarKelime.replace(" ", "+");
 
         try {
-            // Siteye bağlan
-            Document doc = Jsoup.connect(mainurl).get();
+            for (int page = 1; page <= pageCount; page++) {
+                String pageUrl = mainurl;
+                if (page > 1) {
+                    pageUrl = "https://link.springer.com/search/page/"+pageCount+"?facet-content-type=Book&query="+ anahtarKelime.replace(" ", "+");
+                }
 
-            // Linklerin bulunduğu listeyi seç
-            Elements links = doc.select("a.title");
+                Document doc = Jsoup.connect(pageUrl).get(); // siteye bağlan
+                Elements links = doc.select("a.title"); // linkleri çek
 
-            // Her bir link için
-            for (Element link : links) {
-                // Linki al
-                String url = link.attr("href");
-                // Başlığı al
-                String title = link.text();
+                for (Element link : links) {
+                    if(yayinSizeCheck==10){
+                        break;
+                    }
+                    String url = link.attr("href"); // linki al
+                    // Linkten bilgileri çek
+                    getInfoFromUrl("https://link.springer.com" + url);
+                }
 
-                // Linkten bilgileri çek
-                getInfoFromUrl("https://link.springer.com" + url);
+                Element pageNrElement = doc.select(".page-nr .field input.page-number").first();
+                int currentPage = Integer.parseInt(pageNrElement.attr("value"));
+
+                // Toplam sayfa sayısını kontrol et
+                Element totalPagesElement = doc.select(".page-nr .number-of-pages").first();
+                int totalPages = Integer.parseInt(totalPagesElement.text());
+
+                // Eğer şu anki sayfa toplam sayfa sayısından küçükse bir sonraki sayfaya geç
+                if (totalPages>currentPage) {
+                    System.out.println("current page"+currentPage);
+                    System.out.println("total page "+totalPages);
+                    pageCount++;
+                }
+                if(yayinSizeCheck==10){
+                    break;
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -180,7 +202,7 @@ public class YayinServiceImpl implements YayinService {
             // Book Title'ı seç
             Element bookTitleElement = doc.selectFirst(".c-bibliographic-information__value");
             String bookTitle = bookTitleElement.text();
-            System.out.println("Book Title: " + bookTitle);
+           // System.out.println("Book Title: " + bookTitle);
 
             // Editors'ı seç
             Elements editorElements = doc.select(".c-bibliographic-information__value[data-component=book-contributor-list]");
@@ -191,12 +213,12 @@ public class YayinServiceImpl implements YayinService {
                 }
                 editors.append(editorElement.text());
             }
-            System.out.println("Editors: " + editors.toString());
+           // System.out.println("Editors: " + editors.toString());
 
             // DOI'ı seç
             Element doiElement = doc.selectFirst(".c-bibliographic-information__value:contains(DOI)");
             String doi = doiElement.text().replace("DOI: ", "");
-            System.out.println("DOI: " + doi);
+           // System.out.println("DOI: " + doi);
 
 
             Element publisherElement = doc.select("span.u-text-bold:contains(Publisher)").first();
@@ -205,7 +227,7 @@ public class YayinServiceImpl implements YayinService {
             if (publisherElement != null) {
                 publisherValue = publisherElement.parent().select(".c-bibliographic-information__value").first();
                 if (publisherValue != null) {
-                    System.out.println("Publisher: " + publisherValue.text());
+                   // System.out.println("Publisher: " + publisherValue.text());
                 }
             }
 
@@ -222,7 +244,7 @@ public class YayinServiceImpl implements YayinService {
             String citationsCount=null;
             if (matcher.find()) {
                  citationsCount = matcher.group(1);
-                System.out.println("Citations Kısmı: " + citationsCount);
+                //System.out.println("Citations Kısmı: " + citationsCount);
             }
 
 
@@ -230,7 +252,7 @@ public class YayinServiceImpl implements YayinService {
             Elements liElements = doc.select("ul.c-article-subject-list li");
             for (Element liElement : liElements) {
                 String liKeyword = liElement.selectFirst("a").text();
-                System.out.println("List Keyword: " + liKeyword);
+                //System.out.println("List Keyword: " + liKeyword);
             }
 
             Element yearElement = doc.selectFirst("li:containsOwn(©)");
@@ -238,13 +260,13 @@ public class YayinServiceImpl implements YayinService {
 
             // Yıl bilgisini çıkar
             String year = yearText.replaceAll("[^0-9]", "");
-            System.out.println("Year: " + year);
+           // System.out.println("Year: " + year);
 
 
             // About this book içeriğini çek
             Element aboutBookElement = doc.selectFirst(".c-box__heading:contains(About this book)").parent();
             String aboutBookContent = aboutBookElement.select(".c-book-section").text();
-            System.out.println("About this book içeriği: " + aboutBookContent);
+           // System.out.println("About this book içeriği: " + aboutBookContent);
 
             Yayin yeniYayin = new Yayin();
             yeniYayin.setYayinAdi(bookTitle);
@@ -261,8 +283,8 @@ public class YayinServiceImpl implements YayinService {
             yeniYayin.setDoiNumarasi(doi);
             yeniYayin.setUrlAdresi(url);
             yayinRepo.save(yeniYayin);
-
-            System.out.println("sonraki kitap \n");
+            yayinSizeCheck++;
+            System.out.println("sonraki kitap \n"+yayinSizeCheck);
         } catch (IOException e) {
             e.printStackTrace();
         }
