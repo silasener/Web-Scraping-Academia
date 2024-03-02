@@ -35,6 +35,19 @@ public class WebScrapingController {
         return ResponseEntity.ok("Yayın çekildi");
     }
 
+    @GetMapping("/anahtarKelimeyeGore")
+    public ResponseEntity<String> getyayin(@RequestParam String anahtarKelime) {
+        yayinService.yayinCek2(anahtarKelime);
+        return ResponseEntity.ok("Yayın çekildi");
+    }
+
+    @GetMapping("/anahtarKelimeyeUyanMakaleleriGoster")
+    public ResponseEntity<List<MakaleTerimleri>> getanahtarKelimeyeUyanMakaleler(@RequestParam String anahtarKelime) {
+        List<MakaleTerimleri> anahtarKelimeyiBarindiranMakaleler=yayinService.anahtarKelimeyiBarindiranMakaleler(anahtarKelime);
+        return ResponseEntity.ok(anahtarKelimeyiBarindiranMakaleler);
+    }
+
+
     @GetMapping("/yayinlariGetir")
     public ResponseEntity<List<Yayin>> getVeritabanindakiYayinlar() {
         List<Yayin> yayinlar=yayinService.yayinlarigoruntule();

@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 
@@ -144,6 +146,85 @@ public class YayinServiceImpl implements YayinService {
     }
 
     @Override
+    public void yayinCek2(String anahtarKelime) {
+        String mainurl = "https://link.springer.com/search?facet-content-type=Book&query=" + anahtarKelime.replace(" ", "+");
+
+        try {
+            // Siteye bağlan
+            Document doc = Jsoup.connect(mainurl).get();
+
+            // Linklerin bulunduğu listeyi seç
+            Elements links = doc.select("a.title");
+
+            // Her bir link için
+            for (Element link : links) {
+                // Linki al
+                String url = link.attr("href");
+                // Başlığı al
+                String title = link.text();
+
+                // Linkten bilgileri çek
+                getInfoFromUrl("https://link.springer.com" + url);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Verilen URL'den bilgileri çekme metodu
+    public static void getInfoFromUrl(String url) {
+        try {
+            // Siteye bağlan
+            Document doc = Jsoup.connect(url).get();
+
+            // Book Title'ı seç
+            Element bookTitleElement = doc.selectFirst(".c-bibliographic-information__value");
+            String bookTitle = bookTitleElement.text();
+            System.out.println("Book Title: " + bookTitle);
+
+            // Editors'ı seç
+            Elements editorElements = doc.select(".c-bibliographic-information__value[data-component=book-contributor-list]");
+            StringBuilder editors = new StringBuilder();
+            for (Element editorElement : editorElements) {
+                if (editors.length() > 0) {
+                    editors.append(", ");
+                }
+                editors.append(editorElement.text());
+            }
+            System.out.println("Editors: " + editors.toString());
+
+            // DOI'ı seç
+            Element doiElement = doc.selectFirst(".c-bibliographic-information__value:contains(DOI)");
+            String doi = doiElement.text().replace("DOI: ", "");
+            System.out.println("DOI: " + doi);
+
+            String citationCount = doc.select(".c-article-metrics-bar__count").text().trim();
+            System.out.println("bütün alıntı Sayısı: " + citationCount);
+            String pattern = "(\\d+)\\s*Citations";
+
+            // Deseni kullanarak eşleştirmeyi gerçekleştir
+            Pattern r = Pattern.compile(pattern);
+            Matcher matcher = r.matcher(citationCount);
+
+            // Eğer eşleşme bulunduysa, sayıyı al
+            if (matcher.find()) {
+                String citationsCount = matcher.group(1);
+                System.out.println("Citations Kısmı: " + citationsCount);
+            }
+
+            // About this book içeriğini çek
+            Element aboutBookElement = doc.selectFirst(".c-box__heading:contains(About this book)").parent();
+            String aboutBookContent = aboutBookElement.select(".c-book-section").text();
+            System.out.println("About this book içeriği: " + aboutBookContent);
+
+            System.out.println("sonraki kitap \n");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    @Override
     public List<Yayin> yayinlarigoruntule() {
         List<Yayin> yayinList = yayinRepo.findAll();
 
@@ -191,6 +272,16 @@ public class YayinServiceImpl implements YayinService {
         Set<String> uniqueYayinciAdlari = new HashSet<>(yayinciAdiList);
         List<String> uniqueYayinAdlariList= new ArrayList<>(uniqueYayinciAdlari);
         return uniqueYayinAdlariList;
+    }
+
+    @Override
+    public List<MakaleTerimleri> anahtarKelimeyiBarindiranMakaleler(String anahtarKelime) {
+        List<MakaleTerimleri> makaleTerimleriList = makaleTerimleriRepo.findByAnahtarKelime(anahtarKelime);
+        System.out.println(anahtarKelime);
+        for (MakaleTerimleri makale : makaleTerimleriList) {
+            System.out.println(makale.getYayin().getYayinAdi());
+        }
+        return makaleTerimleriList;
     }
 
 
