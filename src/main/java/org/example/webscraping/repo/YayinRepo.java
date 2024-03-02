@@ -11,8 +11,8 @@ public interface YayinRepo extends MongoRepository<Yayin, String> {
     @Query(value = "{}", sort = "{ 'yayimlanmaTarihi' : 1 }")
     List<Yayin> findAllOrderByYayimlanmaTarihiAsc();
 
-    @Query("{ 'urlAdresi' : ?0 }")
-    Yayin findByUrlAdresi(String urlAdresi);
+    @Query("{ 'doiNumarasi' : ?0 }")
+    Yayin findByDoiNumarasi(String doiNumarasi);
 
     @Query("{ 'yayinAdi' : ?0, 'yazarAdi' : ?1 }")
     Yayin findByYayinAdiAndYazarAdi(String yayinAdi, String yazarAdi);

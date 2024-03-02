@@ -10,8 +10,6 @@ import java.util.List;
 public interface YayinService {
     void yayinCek(String anahtarKelime);
 
-    void yayinCek2(String anahtarKelime);
-
     List<Yayin> yayinlarigoruntule();
 
     List<String> yazarlariGoruntule();

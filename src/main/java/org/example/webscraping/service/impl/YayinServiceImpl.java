@@ -34,120 +34,6 @@ public class YayinServiceImpl implements YayinService {
 
     @Override
     public void yayinCek(String anahtarKelime) {
-        List<Yayin> cekilenYayinlar = new ArrayList<>();
-        String searchUrl = null;
-
-        int currentPage = 1;
-        int targetCount = 10; // Hedeflenen veri sayısı
-
-        try {
-            while (cekilenYayinlar.size() < targetCount) {
-                // Google Akademik arama URL'si oluşturma
-                if (currentPage == 1) {
-                    searchUrl = "https://scholar.google.com.tr/scholar?q=" + anahtarKelime;
-                } else {
-                    searchUrl = "https://scholar.google.com.tr/scholar?q=" + anahtarKelime + "&start=" + ((currentPage - 1) * 10);
-                }
-
-                Document document = Jsoup.connect(searchUrl).get();
-                Elements results = document.select("div.gs_ri");
-
-                for (Element result : results) {
-                    String fullInfo = result.select("div.gs_a").text();
-                    if (fullInfo.contains("books.google.com")) {
-                        String urlmain = result.select("h3.gs_rt a").attr("href");
-
-
-                        // urlmain'i kullanarak başka bir URL'ye eriş
-                        Document doc = Jsoup.connect(urlmain).get();
-                        String urlSub = doc.select("a#sidebar-atb-link").attr("href");
-
-                        System.out.println("URL Sub: " + urlSub);
-
-                        // urlSub'deki sayfadaki tüm öğeleri çekip yazdır
-                        Document subDoc = Jsoup.connect(urlSub).get();
-
-                        Elements allElements = subDoc.getAllElements();
-
-                        // Tüm öğeleri yazdır
-                      /* for (Element element : allElements) {
-                            System.out.println(element);
-                        }
-
-                       */
-
-                        String baslik = subDoc.select("td.metadata_label:contains(Başlık) + td.metadata_value span").text();
-                        String yazar = subDoc.select("td.metadata_label:contains(Yazar) + td.metadata_value span").text();
-
-                        String editorler= subDoc.select("td.metadata_label:contains(Editörler) + td.metadata_value span").text();
-                        String editor= subDoc.select("td.metadata_label:contains(Editör) + td.metadata_value span").text();
-                        System.out.println("yazar yazdırma: "+yazar);
-
-                        if(yazar.equals("") && Objects.nonNull(editorler)){
-                           // System.out.println("editorleri yazdırdı"+editorler);
-                            yazar=editorler;
-                        }else if(yazar.equals("") && Objects.nonNull(editor)){
-                            //System.out.println("editoru yazdırdı"+editor);
-                            yazar=editor;
-                        }
-
-                        String yayinciTarih = subDoc.select("td.metadata_label:contains(Yayıncı) + td.metadata_value span").text();
-                        String[] yayinciTarihArray = yayinciTarih.split(",\\s+");
-
-                        Yayin yayinBulundu=yayinRepo.findByYayinAdiAndYazarAdi(baslik,yazar);
-
-                        if(Objects.nonNull(yayinBulundu)){
-
-                        }else{
-                            Yayin yeniYayin = new Yayin();
-                            yeniYayin.setYayinAdi(baslik);
-                            yeniYayin.setYazarIsmi(yazar);
-                            yeniYayin.setYayinTuru("tür");
-
-                            String yayinci = yayinciTarihArray[0];
-                            String yayinlanmaTarihi = yayinciTarihArray[1];
-                            yeniYayin.setYayimlanmaTarihi(Integer.parseInt(yayinlanmaTarihi));
-                            yeniYayin.setYayinciAdi(yayinci);
-                            yeniYayin.setOzet("özet");
-                            yeniYayin.setAlintiSayisi(10);
-                            yeniYayin.setDoiNumarasi("doi");
-                            yeniYayin.setUrlAdresi(urlmain);
-                            cekilenYayinlar.add(yeniYayin);
-                            yayinRepo.save(yeniYayin);
-
-                            Elements cloudElements = subDoc.select("a[class^=cloud] span[dir=ltr]");
-
-                            for (Element cloudElement : cloudElements) {
-                                MakaleTerimleri yeniMakaleTerimleri = new MakaleTerimleri();
-                                yeniMakaleTerimleri.setYayin(yeniYayin);
-                                yeniMakaleTerimleri.setAnahtarKelime(cloudElement.text());
-                                makaleTerimleriRepo.save(yeniMakaleTerimleri);
-                            }
-                        }
-
-                        if (cekilenYayinlar.size() >= targetCount) {
-                            break; // Hedef veri sayısına ulaşıldıysa döngüden çık
-                        }
-                    }
-
-                }
-
-                // Sayfa sayısını kontrol et
-                Element nextPage = document.select("span.gs_ico_nav_next").first();
-                if (nextPage == null) {
-                    // "Sonraki" bağlantısı yoksa çık
-                    break;
-                }
-
-                currentPage++;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void yayinCek2(String anahtarKelime) {
         yayinSizeCheck=0;
         int pageCount = 1;
         String mainurl = "https://link.springer.com/search?facet-content-type=Book&query=" + anahtarKelime.replace(" ", "+");
@@ -168,7 +54,7 @@ public class YayinServiceImpl implements YayinService {
                     }
                     String url = link.attr("href"); // linki al
                     // Linkten bilgileri çek
-                    getInfoFromUrl("https://link.springer.com" + url);
+                    getInfoFromUrl("https://link.springer.com" + url,anahtarKelime);
                 }
 
                 Element pageNrElement = doc.select(".page-nr .field input.page-number").first();
@@ -194,7 +80,7 @@ public class YayinServiceImpl implements YayinService {
     }
 
     // Verilen URL'den bilgileri çekme metodu
-    public void getInfoFromUrl(String url) {
+    public void getInfoFromUrl(String url,String anahtarKelime) {
         try {
             // Siteye bağlan
             Document doc = Jsoup.connect(url).get();
@@ -268,23 +154,34 @@ public class YayinServiceImpl implements YayinService {
             String aboutBookContent = aboutBookElement.select(".c-book-section").text();
            // System.out.println("About this book içeriği: " + aboutBookContent);
 
-            Yayin yeniYayin = new Yayin();
-            yeniYayin.setYayinAdi(bookTitle);
-            yeniYayin.setYazarIsmi(editors.toString());
-            yeniYayin.setYayinTuru("kitap");
-            yeniYayin.setYayimlanmaTarihi(Integer.parseInt(year));
-            yeniYayin.setYayinciAdi(publisherValue.text());
-            yeniYayin.setOzet(aboutBookContent);
-            if(citationsCount!=null){
-                yeniYayin.setAlintiSayisi(Integer.parseInt(citationsCount));
-            }else{
-                yeniYayin.setAlintiSayisi(0);
+            Yayin yayiniVeritabanindaAra=yayinRepo.findByDoiNumarasi(doi);
+
+            if(Objects.isNull(yayiniVeritabanindaAra)){
+                Yayin yeniYayin = new Yayin();
+                yeniYayin.setYayinAdi(bookTitle);
+                yeniYayin.setYazarIsmi(editors.toString());
+                yeniYayin.setYayinTuru("kitap");
+                yeniYayin.setYayimlanmaTarihi(Integer.parseInt(year));
+                yeniYayin.setYayinciAdi(publisherValue.text());
+                yeniYayin.setOzet(aboutBookContent);
+                if(citationsCount!=null){
+                    yeniYayin.setAlintiSayisi(Integer.parseInt(citationsCount));
+                }else{
+                    yeniYayin.setAlintiSayisi(0);
+                }
+                yeniYayin.setDoiNumarasi(doi);
+                yeniYayin.setUrlAdresi(url);
+                yayinRepo.save(yeniYayin);
+                yayinSizeCheck++;
+                System.out.println("sonraki kitap \n"+yayinSizeCheck);
+                for (Element liElement : liElements) {
+                    MakaleTerimleri makaleTerimleri=new MakaleTerimleri();
+                    makaleTerimleri.setYayin(yeniYayin);
+                    String liKeyword = liElement.selectFirst("a").text();
+                    makaleTerimleri.setAnahtarKelime(liKeyword);
+                    makaleTerimleriRepo.save(makaleTerimleri);
+                }
             }
-            yeniYayin.setDoiNumarasi(doi);
-            yeniYayin.setUrlAdresi(url);
-            yayinRepo.save(yeniYayin);
-            yayinSizeCheck++;
-            System.out.println("sonraki kitap \n"+yayinSizeCheck);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -347,7 +244,7 @@ public class YayinServiceImpl implements YayinService {
     @Override
     public List<MakaleTerimleri> anahtarKelimeyiBarindiranMakaleler(String anahtarKelime) {
         List<MakaleTerimleri> makaleTerimleriList = makaleTerimleriRepo.findByAnahtarKelime(anahtarKelime);
-        System.out.println(anahtarKelime);
+        //System.out.println(anahtarKelime);
         for (MakaleTerimleri makale : makaleTerimleriList) {
             System.out.println(makale.getYayin().getYayinAdi());
         }

@@ -1,21 +1,19 @@
 package org.example.webscraping.api.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.webscraping.domain.MakaleTerimleri;
 import org.example.webscraping.domain.Yayin;
 import org.example.webscraping.repo.MakaleTerimleriRepo;
 import org.example.webscraping.repo.YayinRepo;
 import org.example.webscraping.service.YayinService;
-import org.springframework.asm.TypeReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.fasterxml.jackson.core.type.TypeReference;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @RestController
 public class WebScrapingController {
@@ -30,18 +28,12 @@ public class WebScrapingController {
 
 
     @GetMapping("/anahtarKelimeyeGoreYayinCek")
-    public ResponseEntity<String> getAllYayin(@RequestParam String anahtarKelime) {
+    public ResponseEntity<String> getyayin(@RequestParam String anahtarKelime) {
         yayinService.yayinCek(anahtarKelime);
         return ResponseEntity.ok("Yayın çekildi");
     }
 
-    @GetMapping("/anahtarKelimeyeGore")
-    public ResponseEntity<String> getyayin(@RequestParam String anahtarKelime) {
-        yayinService.yayinCek2(anahtarKelime);
-        return ResponseEntity.ok("Yayın çekildi");
-    }
-
-    @GetMapping("/anahtarKelimeyeUyanMakaleleriGoster")
+    @GetMapping("/anahtarKelimeyeGoreMakaleAra")
     public ResponseEntity<List<MakaleTerimleri>> getanahtarKelimeyeUyanMakaleler(@RequestParam String anahtarKelime) {
         List<MakaleTerimleri> anahtarKelimeyiBarindiranMakaleler=yayinService.anahtarKelimeyiBarindiranMakaleler(anahtarKelime);
         return ResponseEntity.ok(anahtarKelimeyiBarindiranMakaleler);
@@ -91,6 +83,16 @@ public class WebScrapingController {
         return ResponseEntity.ok(yayinciAdiList);
     }
 
+
+    @GetMapping("/tarihVeAlinti")
+    public String getTarihVeAlinti(
+            @RequestParam(required = false) Integer minYayinlanmaYili,
+            @RequestParam(required = false) Integer maxYayinlanmaYili,
+            @RequestParam(required = false) String siralanmisListe) throws JsonProcessingException {
+        List<Yayin> siralanmisListeObj = new ObjectMapper().readValue(siralanmisListe, new TypeReference<List<Yayin>>() {});
+        // İşlemleri burada yapın
+        return "Tarih ve Alıntı bilgileri alındı.";
+    }
 
 
 
