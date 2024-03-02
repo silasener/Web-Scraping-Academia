@@ -227,10 +227,15 @@ public class YayinServiceImpl implements YayinService {
             String year = yearText.replaceAll("[^0-9]", "");
             System.out.println("Year: " + year);
 
-            Element publisherElement = doc.selectFirst("span.u-text-bold:containsOwn(Publisher)");
-            String publisher = publisherElement.nextElementSibling().text();
 
-            System.out.println("Publisher: " + publisher);
+            Element imgElement = doc.selectFirst(".c-app-header__side img");
+
+            if (imgElement != null) {
+                // "alt" değerini al
+                String publisherName = imgElement.attr("alt");
+
+                System.out.println("Publisher: " + publisherName);
+            }
 
             // About this book içeriğini çek
             Element aboutBookElement = doc.selectFirst(".c-box__heading:contains(About this book)").parent();
