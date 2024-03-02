@@ -172,7 +172,7 @@ public class YayinServiceImpl implements YayinService {
     }
 
     // Verilen URL'den bilgileri çekme metodu
-    public static void getInfoFromUrl(String url) {
+    public void getInfoFromUrl(String url) {
         try {
             // Siteye bağlan
             Document doc = Jsoup.connect(url).get();
@@ -198,6 +198,18 @@ public class YayinServiceImpl implements YayinService {
             String doi = doiElement.text().replace("DOI: ", "");
             System.out.println("DOI: " + doi);
 
+
+            Element publisherElement = doc.select("span.u-text-bold:contains(Publisher)").first();
+
+            Element publisherValue=null;
+            if (publisherElement != null) {
+                publisherValue = publisherElement.parent().select(".c-bibliographic-information__value").first();
+                if (publisherValue != null) {
+                    System.out.println("Publisher: " + publisherValue.text());
+                }
+            }
+
+
             String citationCount = doc.select(".c-article-metrics-bar__count").text().trim();
             //System.out.println("bütün alıntı Sayısı: " + citationCount);
             String pattern = "(\\d+)\\s*Citations";
@@ -207,8 +219,9 @@ public class YayinServiceImpl implements YayinService {
             Matcher matcher = r.matcher(citationCount);
 
             // Eğer eşleşme bulunduysa, sayıyı al
+            String citationsCount=null;
             if (matcher.find()) {
-                String citationsCount = matcher.group(1);
+                 citationsCount = matcher.group(1);
                 System.out.println("Citations Kısmı: " + citationsCount);
             }
 
@@ -228,19 +241,26 @@ public class YayinServiceImpl implements YayinService {
             System.out.println("Year: " + year);
 
 
-            Element imgElement = doc.selectFirst(".c-app-header__side img");
-
-            if (imgElement != null) {
-                // "alt" değerini al
-                String publisherName = imgElement.attr("alt");
-
-                System.out.println("Publisher: " + publisherName);
-            }
-
             // About this book içeriğini çek
             Element aboutBookElement = doc.selectFirst(".c-box__heading:contains(About this book)").parent();
             String aboutBookContent = aboutBookElement.select(".c-book-section").text();
             System.out.println("About this book içeriği: " + aboutBookContent);
+
+            Yayin yeniYayin = new Yayin();
+            yeniYayin.setYayinAdi(bookTitle);
+            yeniYayin.setYazarIsmi(editors.toString());
+            yeniYayin.setYayinTuru("kitap");
+            yeniYayin.setYayimlanmaTarihi(Integer.parseInt(year));
+            yeniYayin.setYayinciAdi(publisherValue.text());
+            yeniYayin.setOzet(aboutBookContent);
+            if(citationsCount!=null){
+                yeniYayin.setAlintiSayisi(Integer.parseInt(citationsCount));
+            }else{
+                yeniYayin.setAlintiSayisi(0);
+            }
+            yeniYayin.setDoiNumarasi(doi);
+            yeniYayin.setUrlAdresi(url);
+            yayinRepo.save(yeniYayin);
 
             System.out.println("sonraki kitap \n");
         } catch (IOException e) {
