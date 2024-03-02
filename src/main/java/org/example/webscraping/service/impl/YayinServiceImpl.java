@@ -307,14 +307,17 @@ public class YayinServiceImpl implements YayinService {
     @Override
     public List<String> yazarlariGoruntule() {
         List<Yayin> yayinList = yayinRepo.findAllYazarIsmi();
+
         List<String> yazarIsmiList = yayinList.stream()
                 .map(Yayin::getYazarIsmi)
+                .flatMap(yazarlar -> Arrays.stream(yazarlar.split(", ")))
                 .collect(Collectors.toList());
 
         Set<String> uniqueYazarlar = new HashSet<>(yazarIsmiList);
         List<String> uniqueYazarlarList = new ArrayList<>(uniqueYazarlar);
         return uniqueYazarlarList;
     }
+
 
     @Override
     public List<String> eserAdlariniGoruntule() {
