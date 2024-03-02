@@ -199,7 +199,7 @@ public class YayinServiceImpl implements YayinService {
             System.out.println("DOI: " + doi);
 
             String citationCount = doc.select(".c-article-metrics-bar__count").text().trim();
-            System.out.println("bütün alıntı Sayısı: " + citationCount);
+            //System.out.println("bütün alıntı Sayısı: " + citationCount);
             String pattern = "(\\d+)\\s*Citations";
 
             // Deseni kullanarak eşleştirmeyi gerçekleştir
@@ -211,6 +211,26 @@ public class YayinServiceImpl implements YayinService {
                 String citationsCount = matcher.group(1);
                 System.out.println("Citations Kısmı: " + citationsCount);
             }
+
+
+            // Ul içindeki tüm li etiketlerini çek
+            Elements liElements = doc.select("ul.c-article-subject-list li");
+            for (Element liElement : liElements) {
+                String liKeyword = liElement.selectFirst("a").text();
+                System.out.println("List Keyword: " + liKeyword);
+            }
+
+            Element yearElement = doc.selectFirst("li:containsOwn(©)");
+            String yearText = yearElement.text();
+
+            // Yıl bilgisini çıkar
+            String year = yearText.replaceAll("[^0-9]", "");
+            System.out.println("Year: " + year);
+
+            Element publisherElement = doc.selectFirst("span.u-text-bold:containsOwn(Publisher)");
+            String publisher = publisherElement.nextElementSibling().text();
+
+            System.out.println("Publisher: " + publisher);
 
             // About this book içeriğini çek
             Element aboutBookElement = doc.selectFirst(".c-box__heading:contains(About this book)").parent();
