@@ -55,6 +55,26 @@ public class WebScrapingController {
     }
 
 
+
+    @PostMapping("/yayinlar-by-anahtar-kelimeler2")
+    public List<Yayin> yayinlarByAnahtarKelimeler2(@RequestBody List<String> anahtarKelimeler) {
+
+        System.out.println(yayinService.anahtarKelimeListesineGoreYayinlar(anahtarKelimeler));
+
+        List<Yayin>yayinList=yayinService.anahtarKelimeListesineGoreYayinlar(anahtarKelimeler);
+
+        for (Yayin a:yayinList){
+            System.out.println(a.getYayinAdi());
+
+
+        }
+
+        return yayinService.anahtarKelimeListesineGoreYayinlar(anahtarKelimeler);
+
+    }
+
+
+
     @PostMapping("/yayinEkle/{yayinId}/{yayinAdi}")
     public ResponseEntity<String> yayinEkle(@PathVariable String yayinId, @PathVariable String yayinAdi) {
         try {
@@ -90,6 +110,8 @@ public class WebScrapingController {
         List<String> yayinciAdiList = yayinService.yayinciAdlariniGoruntule();
         return ResponseEntity.ok(yayinciAdiList);
     }
+
+
 
 
 

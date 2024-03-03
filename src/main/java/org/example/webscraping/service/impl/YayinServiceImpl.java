@@ -249,6 +249,7 @@ public class YayinServiceImpl implements YayinService {
 
     @Override
     public List<String> makaleninAnahtarKelimeleri(String yayinId) {
+
         List<String> anahtarKelimeler=new ArrayList<>();
         Yayin arananYayin=yayinRepo.findByYayinId(yayinId);
         List<MakaleTerimleri> makaleninTerimReposu=makaleTerimleriRepo.findByYayin(arananYayin);
@@ -258,5 +259,10 @@ public class YayinServiceImpl implements YayinService {
         return anahtarKelimeler;
     }
 
+    @Override
+    public List<Yayin> anahtarKelimeListesineGoreYayinlar(List<String> makaleTerimleriList) {
+        List<Yayin>yayinList=makaleTerimleriRepo.findByMakaleTerimleriList(makaleTerimleriList);
 
+        return yayinList;
+    }
 }
