@@ -242,7 +242,7 @@ public class YayinServiceImpl implements YayinService {
         List<MakaleTerimleri> makaleTerimleriList = makaleTerimleriRepo.findByAnahtarKelime(anahtarKelime);
         //System.out.println(anahtarKelime);
         for (MakaleTerimleri makale : makaleTerimleriList) {
-            System.out.println(makale.getYayin().getYayinAdi());
+            //System.out.println(makale.getYayin().getYayinAdi());
         }
         return makaleTerimleriList;
     }
