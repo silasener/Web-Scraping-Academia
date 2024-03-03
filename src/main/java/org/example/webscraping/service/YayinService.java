@@ -22,4 +22,6 @@ public interface YayinService {
 
     List<String> makaleninAnahtarKelimeleri(String yayinId);
 
+    List<String> anahtarKelimeList();
+
 }

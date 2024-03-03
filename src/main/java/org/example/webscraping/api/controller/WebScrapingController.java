@@ -40,6 +40,12 @@ public class WebScrapingController {
         return ResponseEntity.ok(anahtarKelimeyiBarindiranMakaleler);
     }
 
+    @GetMapping("/uniqueAnahtarKelimeListesi")
+    public ResponseEntity<List<String>> getanahtarKelimeler() {
+        List<String> anahtarKelimeler=yayinService.anahtarKelimeList();
+        return ResponseEntity.ok(anahtarKelimeler);
+    }
+
 
     @GetMapping("/yayinlariGetir")
     public ResponseEntity<List<Yayin>> getVeritabanindakiYayinlar() {

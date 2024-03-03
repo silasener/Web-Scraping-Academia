@@ -258,5 +258,18 @@ public class YayinServiceImpl implements YayinService {
         return anahtarKelimeler;
     }
 
+    @Override
+    public List<String> anahtarKelimeList() {
+        List<MakaleTerimleri> makaleTerimLeriReposu =makaleTerimleriRepo.findAll();
+        List<String> anahtarKelimeList= makaleTerimLeriReposu.stream()
+                .map(MakaleTerimleri::getAnahtarKelime)
+                .collect(Collectors.toList());
+
+        Set<String> uniqueAnahtarKelimeler = new HashSet<>(anahtarKelimeList);
+        List<String> uniqueAnahtarKelimeList= new ArrayList<>(uniqueAnahtarKelimeler);
+
+        return uniqueAnahtarKelimeList;
+    }
+
 
 }
