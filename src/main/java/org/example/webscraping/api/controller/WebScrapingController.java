@@ -28,9 +28,10 @@ public class WebScrapingController {
 
 
     @GetMapping("/anahtarKelimeyeGoreYayinCek")
-    public ResponseEntity<String> getyayin(@RequestParam String anahtarKelime) {
+    public ResponseEntity<List<Yayin>> getyayin(@RequestParam String anahtarKelime) {
         yayinService.yayinCek(anahtarKelime);
-        return ResponseEntity.ok("Yayın çekildi");
+        List<Yayin> yayinList=yayinService.yayinlarigoruntule();
+        return ResponseEntity.ok(yayinList);
     }
 
     @GetMapping("/anahtarKelimeyeGoreMakaleAra")

@@ -57,19 +57,8 @@ public class YayinServiceImpl implements YayinService {
                     getInfoFromUrl("https://link.springer.com" + url,anahtarKelime);
                 }
 
-                Element pageNrElement = doc.select(".page-nr .field input.page-number").first();
-                int currentPage = Integer.parseInt(pageNrElement.attr("value"));
-
-                // Toplam sayfa sayısını kontrol et
-                Element totalPagesElement = doc.select(".page-nr .number-of-pages").first();
-                int totalPages = Integer.parseInt(totalPagesElement.text());
-
-                // Eğer şu anki sayfa toplam sayfa sayısından küçükse bir sonraki sayfaya geç
-                if (totalPages>currentPage) {
-                    System.out.println("current page"+currentPage);
-                    System.out.println("total page "+totalPages);
                     pageCount++;
-                }
+
                 if(yayinSizeCheck==10){
                     break;
                 }
@@ -142,11 +131,14 @@ public class YayinServiceImpl implements YayinService {
             }
 
             Element yearElement = doc.selectFirst("li:containsOwn(©)");
-            String yearText = yearElement.text();
-
-            // Yıl bilgisini çıkar
-            String year = yearText.replaceAll("[^0-9]", "");
-           // System.out.println("Year: " + year);
+            String yearText=null;
+            String year=null;
+            if(Objects.nonNull(yearElement)){
+                yearText = yearElement.text();
+                year = yearText.replaceAll("[^0-9]", "");
+            }else{
+                year=null;
+            }
 
 
             // About this book içeriğini çek
@@ -161,7 +153,11 @@ public class YayinServiceImpl implements YayinService {
                 yeniYayin.setYayinAdi(bookTitle);
                 yeniYayin.setYazarIsmi(editors.toString());
                 yeniYayin.setYayinTuru("kitap");
-                yeniYayin.setYayimlanmaTarihi(Integer.parseInt(year));
+                if(year!=null){
+                    yeniYayin.setYayimlanmaTarihi(Integer.parseInt(year));
+                }else{
+                    yeniYayin.setYayimlanmaTarihi(null);
+                }
                 yeniYayin.setYayinciAdi(publisherValue.text());
                 yeniYayin.setOzet(aboutBookContent);
                 if(citationsCount!=null){
