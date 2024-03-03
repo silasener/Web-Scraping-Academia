@@ -20,4 +20,6 @@ public interface YayinService {
 
     List<MakaleTerimleri> anahtarKelimeyiBarindiranMakaleler(String anahtarKelime);
 
+    List<String> makaleninAnahtarKelimeleri(String yayinId);
+
 }

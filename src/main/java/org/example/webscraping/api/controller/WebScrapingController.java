@@ -47,6 +47,13 @@ public class WebScrapingController {
     }
 
 
+    @GetMapping("/makaleninAnahtarKelimeleri")
+    public ResponseEntity<List<String>> getMakaleninAnahtarKelimeleri(@RequestParam String yayinId) {
+        List<String> anahtarKelimeler=yayinService.makaleninAnahtarKelimeleri(yayinId);
+        return ResponseEntity.ok(anahtarKelimeler);
+    }
+
+
     @PostMapping("/yayinEkle/{yayinId}/{yayinAdi}")
     public ResponseEntity<String> yayinEkle(@PathVariable String yayinId, @PathVariable String yayinAdi) {
         try {
@@ -81,17 +88,6 @@ public class WebScrapingController {
     public ResponseEntity<List<String>> getYayinciAdlari() {
         List<String> yayinciAdiList = yayinService.yayinciAdlariniGoruntule();
         return ResponseEntity.ok(yayinciAdiList);
-    }
-
-
-    @GetMapping("/tarihVeAlinti")
-    public String getTarihVeAlinti(
-            @RequestParam(required = false) Integer minYayinlanmaYili,
-            @RequestParam(required = false) Integer maxYayinlanmaYili,
-            @RequestParam(required = false) String siralanmisListe) throws JsonProcessingException {
-        List<Yayin> siralanmisListeObj = new ObjectMapper().readValue(siralanmisListe, new TypeReference<List<Yayin>>() {});
-        // İşlemleri burada yapın
-        return "Tarih ve Alıntı bilgileri alındı.";
     }
 
 
