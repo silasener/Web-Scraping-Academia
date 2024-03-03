@@ -17,4 +17,9 @@ public interface MakaleTerimleriRepo extends MongoRepository<MakaleTerimleri, St
     List<MakaleTerimleri> findByYayin(Yayin yayin);
 
 
+
+
+
+
+
 }

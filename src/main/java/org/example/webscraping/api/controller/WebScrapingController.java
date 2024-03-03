@@ -61,6 +61,9 @@ public class WebScrapingController {
     }
 
 
+
+
+
     @PostMapping("/yayinEkle/{yayinId}/{yayinAdi}")
     public ResponseEntity<String> yayinEkle(@PathVariable String yayinId, @PathVariable String yayinAdi) {
         try {
@@ -96,6 +99,8 @@ public class WebScrapingController {
         List<String> yayinciAdiList = yayinService.yayinciAdlariniGoruntule();
         return ResponseEntity.ok(yayinciAdiList);
     }
+
+
 
 
 
