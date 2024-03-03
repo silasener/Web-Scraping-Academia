@@ -259,10 +259,5 @@ public class YayinServiceImpl implements YayinService {
         return anahtarKelimeler;
     }
 
-    @Override
-    public List<Yayin> anahtarKelimeListesineGoreYayinlar(List<String> makaleTerimleriList) {
-        List<Yayin>yayinList=makaleTerimleriRepo.findByMakaleTerimleriList(makaleTerimleriList);
 
-        return yayinList;
-    }
 }
