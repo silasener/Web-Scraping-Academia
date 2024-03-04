@@ -18,6 +18,8 @@ public interface YayinService {
 
     List<String> yayinciAdlariniGoruntule();
 
+    Yayin yayinaAitDetaylariGetir(String yayinId);
+
     List<MakaleTerimleri> anahtarKelimeyiBarindiranMakaleler(String anahtarKelime);
 
     List<String> makaleninAnahtarKelimeleri(String yayinId);

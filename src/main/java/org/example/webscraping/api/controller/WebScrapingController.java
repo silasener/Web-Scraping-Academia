@@ -100,6 +100,11 @@ public class WebScrapingController {
         return ResponseEntity.ok(yayinciAdiList);
     }
 
+    @GetMapping("/yayinDetayGetir")
+    public ResponseEntity<Yayin> getYayinDetay(@RequestParam String yayinId) {
+        Yayin yayinDetay = yayinService.yayinaAitDetaylariGetir(yayinId);
+        return ResponseEntity.ok(yayinDetay);
+    }
 
 
 

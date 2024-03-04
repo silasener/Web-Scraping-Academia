@@ -238,6 +238,11 @@ public class YayinServiceImpl implements YayinService {
     }
 
     @Override
+    public Yayin yayinaAitDetaylariGetir(String yayinId) {
+        return yayinRepo.findByYayinId(yayinId);
+    }
+
+    @Override
     public List<MakaleTerimleri> anahtarKelimeyiBarindiranMakaleler(String anahtarKelime) {
         List<MakaleTerimleri> makaleTerimleriList = makaleTerimleriRepo.findByAnahtarKelime(anahtarKelime);
         //System.out.println(anahtarKelime);
