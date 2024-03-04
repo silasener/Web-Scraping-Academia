@@ -2,6 +2,8 @@ package org.example.webscraping.service;
 
 import org.example.webscraping.domain.MakaleTerimleri;
 import org.example.webscraping.domain.Yayin;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -27,5 +29,7 @@ public interface YayinService {
     List<String> anahtarKelimeList();
 
     List<String> yayinTurList();
+
+    ResponseEntity<ByteArrayResource> downloadPdf(String pdfUrl);
 
 }

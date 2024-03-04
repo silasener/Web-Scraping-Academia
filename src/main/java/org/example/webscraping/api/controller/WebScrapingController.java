@@ -113,6 +113,12 @@ public class WebScrapingController {
         return ResponseEntity.ok(yayinTurList);
     }
 
+    @GetMapping("/pdfIndir")
+    public ResponseEntity<?> downloadPdf(@RequestParam String pdfLink) {
+        String fullPdfUrl = "https://link.springer.com" + pdfLink;
+        return yayinService.downloadPdf(fullPdfUrl);
+    }
+
 
 
 

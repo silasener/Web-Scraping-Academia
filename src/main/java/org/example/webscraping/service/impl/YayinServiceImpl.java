@@ -11,7 +11,13 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.util.*;
@@ -31,6 +37,8 @@ public class YayinServiceImpl implements YayinService {
     private MakaleTerimleriRepo makaleTerimleriRepo;
 
     private static Integer yayinSizeCheck;
+
+    private final RestTemplate restTemplate;
 
     @Override
     public void yayinCek(String anahtarKelime) {
@@ -77,6 +85,10 @@ public class YayinServiceImpl implements YayinService {
             // Book Title'ı seç
             Element bookTitleElement = doc.selectFirst(".c-bibliographic-information__value");
             String bookTitle = bookTitleElement.text();
+
+            Element pdfLinkElement = doc.selectFirst(".c-card__body a[data-test=front-matter-pdf]");
+            String pdfLink = pdfLinkElement.attr("href");
+            System.out.println("PDF Link: " + pdfLink);
            // System.out.println("Book Title: " + bookTitle);
 
             // Editors'ı seç
@@ -193,6 +205,7 @@ public class YayinServiceImpl implements YayinService {
                 }
                 yeniYayin.setDoiNumarasi(doi);
                 yeniYayin.setUrlAdresi(url);
+                yeniYayin.setPdfLink(pdfLink);
                 yayinRepo.save(yeniYayin);
                 yayinSizeCheck++;
                // System.out.println("sonraki kitap \n"+yayinSizeCheck);
@@ -314,6 +327,24 @@ public class YayinServiceImpl implements YayinService {
         List<String> uniqueYayinTuruAdlariList= new ArrayList<>(uniqueYayinTuruAdlari);
 
         return uniqueYayinTuruAdlariList;
+    }
+
+    @Override
+    public ResponseEntity<ByteArrayResource> downloadPdf(String pdfUrl) {
+        byte[] pdfContent = restTemplate.getForObject(pdfUrl, byte[].class);
+
+        if (Objects.requireNonNull(pdfContent).length > 0) {
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=downloaded.pdf");
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .contentLength(pdfContent.length)
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(new ByteArrayResource(pdfContent));
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
 
