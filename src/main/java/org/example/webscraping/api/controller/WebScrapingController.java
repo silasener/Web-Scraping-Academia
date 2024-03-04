@@ -107,6 +107,12 @@ public class WebScrapingController {
     }
 
 
+    @GetMapping("/yayinTuruListesi")
+    public ResponseEntity<List<String>> getYayinTurleri() {
+        List<String> yayinTurList = yayinService.yayinTurList();
+        return ResponseEntity.ok(yayinTurList);
+    }
+
 
 
 

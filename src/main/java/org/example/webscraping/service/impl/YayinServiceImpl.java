@@ -144,7 +144,22 @@ public class YayinServiceImpl implements YayinService {
             // About this book içeriğini çek
             Element aboutBookElement = doc.selectFirst(".c-box__heading:contains(About this book)").parent();
             String aboutBookContent = aboutBookElement.select(".c-book-section").text();
-           // System.out.println("About this book içeriği: " + aboutBookContent);
+
+
+            String bookText=null;
+            Element bookElement = doc.selectFirst(".c-article-identifiers__item:contains(Book)");
+            if(Objects.nonNull(bookElement)){
+                bookText = bookElement.text();
+            }
+
+            String conferenceText=null;
+            Element conferenceElement = doc.selectFirst(".c-article-identifiers__item:contains(Conference proceedings)");
+            if(Objects.nonNull(conferenceElement)){
+                conferenceText=conferenceElement.text();
+            }
+
+
+            // System.out.println("About this book içeriği: " + aboutBookContent);
 
             Yayin yayiniVeritabanindaAra=yayinRepo.findByDoiNumarasi(doi);
 
@@ -152,7 +167,18 @@ public class YayinServiceImpl implements YayinService {
                 Yayin yeniYayin = new Yayin();
                 yeniYayin.setYayinAdi(bookTitle);
                 yeniYayin.setYazarIsmi(editors.toString());
-                yeniYayin.setYayinTuru("kitap");
+                if(Objects.nonNull(bookText)){
+                    yeniYayin.setYayinTuru(bookText);
+                }
+
+                if(Objects.nonNull(conferenceText)){
+                    yeniYayin.setYayinTuru(conferenceText);
+                }
+
+                if(Objects.isNull(conferenceText) && Objects.isNull(bookText)){
+                    yeniYayin.setYayinTuru("belirsiz");
+                }
+
                 if(year!=null){
                     yeniYayin.setYayimlanmaTarihi(Integer.parseInt(year));
                 }else{
@@ -169,7 +195,7 @@ public class YayinServiceImpl implements YayinService {
                 yeniYayin.setUrlAdresi(url);
                 yayinRepo.save(yeniYayin);
                 yayinSizeCheck++;
-                System.out.println("sonraki kitap \n"+yayinSizeCheck);
+               // System.out.println("sonraki kitap \n"+yayinSizeCheck);
                 for (Element liElement : liElements) {
                     MakaleTerimleri makaleTerimleri=new MakaleTerimleri();
                     makaleTerimleri.setYayin(yeniYayin);
@@ -190,7 +216,7 @@ public class YayinServiceImpl implements YayinService {
 
         Set<String> uniqueYazarYayin = new HashSet<>();
         List<Yayin> uniqueAndSortedYayinlar = yayinList.stream()
-                .filter(yayin -> uniqueYazarYayin.add(yayin.getYazarIsmi() + yayin.getYayinAdi()))
+                .filter(yayin -> uniqueYazarYayin.add(yayin.getUrlAdresi()))
                 .sorted(Comparator.comparing(Yayin::getYayinAdi))
                 .collect(Collectors.toList());
 
@@ -275,6 +301,19 @@ public class YayinServiceImpl implements YayinService {
         List<String> uniqueAnahtarKelimeList= new ArrayList<>(uniqueAnahtarKelimeler);
 
         return uniqueAnahtarKelimeList;
+    }
+
+    @Override
+    public List<String> yayinTurList() {
+        List<Yayin> yayinList=yayinRepo.findAll();
+        List<String> yayinTuruList = yayinList.stream()
+                .map(Yayin::getYayinTuru)
+                .collect(Collectors.toList());
+
+        Set<String> uniqueYayinTuruAdlari = new HashSet<>(yayinTuruList);
+        List<String> uniqueYayinTuruAdlariList= new ArrayList<>(uniqueYayinTuruAdlari);
+
+        return uniqueYayinTuruAdlariList;
     }
 
 

@@ -26,4 +26,6 @@ public interface YayinService {
 
     List<String> anahtarKelimeList();
 
+    List<String> yayinTurList();
+
 }
