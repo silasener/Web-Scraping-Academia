@@ -307,16 +307,17 @@ public class YayinServiceImpl implements YayinService {
 
     @Override
     public List<String> anahtarKelimeList() {
-        List<MakaleTerimleri> makaleTerimLeriReposu =makaleTerimleriRepo.findAll();
-        List<String> anahtarKelimeList= makaleTerimLeriReposu.stream()
+        List<MakaleTerimleri> makaleTerimLeriReposu = makaleTerimleriRepo.findAll();
+        List<String> anahtarKelimeList = makaleTerimLeriReposu.stream()
                 .map(MakaleTerimleri::getAnahtarKelime)
                 .collect(Collectors.toList());
 
         Set<String> uniqueAnahtarKelimeler = new HashSet<>(anahtarKelimeList);
-        List<String> uniqueAnahtarKelimeList= new ArrayList<>(uniqueAnahtarKelimeler);
+        List<String> uniqueAnahtarKelimeList = new ArrayList<>(uniqueAnahtarKelimeler);
 
         return uniqueAnahtarKelimeList;
     }
+
 
     @Override
     public List<String> yayinTurList() {
@@ -351,7 +352,14 @@ public class YayinServiceImpl implements YayinService {
 
     @Override
     public List<MakaleTerimleri> yanlisKelimeyeEnUygunMakaleler(String benzerAnahtarKelime) {
-        List<String> uniqueAnahtarKelimeList = anahtarKelimeList();
+        List<MakaleTerimleri> makaleTerimLeriReposu = makaleTerimleriRepo.findAll();
+        List<String> anahtarKelimeList = makaleTerimLeriReposu.stream()
+                .map(MakaleTerimleri::getAnahtarKelime)
+                .flatMap(anahtarKelime -> Arrays.stream(anahtarKelime.split("\\s+")))
+                .collect(Collectors.toList());
+
+        Set<String> uniqueAnahtarKelimeler = new HashSet<>(anahtarKelimeList);
+        List<String> uniqueAnahtarKelimeList = new ArrayList<>(uniqueAnahtarKelimeler);
 
         // benzerAnahtarKelime'ye en çok uyan kelimeyi bulma
         Optional<String> enUyanKelime = uniqueAnahtarKelimeList.stream()
@@ -365,7 +373,8 @@ public class YayinServiceImpl implements YayinService {
             enUygunKelime = enUyanKelime.get();
 
             // Anahtar kelimeye göre makaleleri filtreleme
-            List<MakaleTerimleri> uygunMakaleler = makaleTerimleriRepo.findByAnahtarKelime(enUygunKelime);
+            //List<MakaleTerimleri> uygunMakaleler = makaleTerimleriRepo.findByAnahtarKelime(enUygunKelime);
+            List<MakaleTerimleri> uygunMakaleler = makaleTerimleriRepo.findByAnahtarKelimeContaining(enUygunKelime);
 
             return uygunMakaleler;
         } else {

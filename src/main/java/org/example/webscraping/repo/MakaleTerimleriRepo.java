@@ -16,7 +16,8 @@ public interface MakaleTerimleriRepo extends MongoRepository<MakaleTerimleri, St
     @Query("{ 'yayin' : ?0 }")
     List<MakaleTerimleri> findByYayin(Yayin yayin);
 
-
+    @Query("{ 'anahtarKelime' : { $regex: ?0, $options: 'i' } }")
+    List<MakaleTerimleri> findByAnahtarKelimeContaining(String anahtarKelime);
 
 
 
