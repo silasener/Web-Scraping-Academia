@@ -39,6 +39,8 @@ public class Yayin {
 
     private String pdfLink;
 
+    private String imgUrl;
+
     private List<MakaleTerimleri> makaleTerimleriList;
 
     public Yayin(String yayinId, String yayinAdi) {

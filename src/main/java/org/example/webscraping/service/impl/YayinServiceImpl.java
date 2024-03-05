@@ -95,23 +95,6 @@ public class YayinServiceImpl implements YayinService {
            // System.out.println("Book Title: " + bookTitle);
 
 
-            // img etiketlerini seç
-            Elements imgElements = doc.select("img");
-
-            // Her img etiketi için URL'yi al ve sadece http olanları yazdır
-            for (Element imgElement : imgElements) {
-                String imgUrl = imgElement.attr("src");
-                if (imgUrl.startsWith("http")) {
-                    System.out.println("Resim URL'si: " + imgUrl);
-                }
-            }
-
-
-
-
-
-
-
             // Editors'ı seç
             Elements editorElements = doc.select(".c-bibliographic-information__value[data-component=book-contributor-list]");
             StringBuilder editors = new StringBuilder();
@@ -196,48 +179,93 @@ public class YayinServiceImpl implements YayinService {
 
             Yayin yayiniVeritabanindaAra=yayinRepo.findByDoiNumarasi(doi);
 
-            if(Objects.isNull(yayiniVeritabanindaAra)){
+            if(Objects.isNull(yayiniVeritabanindaAra)) {
                 Yayin yeniYayin = new Yayin();
-                yeniYayin.setYayinAdi(bookTitle);
-                yeniYayin.setYazarIsmi(editors.toString());
-                if(Objects.nonNull(bookText)){
+
+                // Yayin Adi
+                if (Objects.nonNull(bookTitle)) {
+                    yeniYayin.setYayinAdi(bookTitle);
+                }
+
+                // Yazar Ismi
+                if (Objects.nonNull(editors)) {
+                    yeniYayin.setYazarIsmi(editors.toString());
+                }
+
+                // Yayin Turu
+                if (Objects.nonNull(bookText)) {
                     yeniYayin.setYayinTuru(bookText);
-                }
-
-                if(Objects.nonNull(conferenceText)){
+                } else if (Objects.nonNull(conferenceText)) {
                     yeniYayin.setYayinTuru(conferenceText);
-                }
-
-                if(Objects.isNull(conferenceText) && Objects.isNull(bookText)){
+                } else {
                     yeniYayin.setYayinTuru("belirsiz");
                 }
 
-                if(year!=null){
+                // Yayimlanma Tarihi
+                if (Objects.nonNull(year)) {
                     yeniYayin.setYayimlanmaTarihi(Integer.parseInt(year));
-                }else{
+                } else {
                     yeniYayin.setYayimlanmaTarihi(null);
                 }
-                yeniYayin.setYayinciAdi(publisherValue.text());
-                yeniYayin.setOzet(aboutBookContent);
-                if(citationsCount!=null){
+
+                // Yayinci Adi
+                if (Objects.nonNull(publisherValue)) {
+                    yeniYayin.setYayinciAdi(publisherValue.text());
+                }
+
+                // Ozet
+                if (Objects.nonNull(aboutBookContent)) {
+                    yeniYayin.setOzet(aboutBookContent);
+                }
+
+                // Alinti Sayisi
+                if (Objects.nonNull(citationsCount)) {
                     yeniYayin.setAlintiSayisi(Integer.parseInt(citationsCount));
-                }else{
+                } else {
                     yeniYayin.setAlintiSayisi(0);
                 }
-                yeniYayin.setDoiNumarasi(doi);
-                yeniYayin.setUrlAdresi(url);
-                yeniYayin.setPdfLink(pdfLink);
+
+                // Doi Numarasi
+                if (Objects.nonNull(doi)) {
+                    yeniYayin.setDoiNumarasi(doi);
+                }
+
+                // URL Adresi
+                if (Objects.nonNull(url)) {
+                    yeniYayin.setUrlAdresi(url);
+                }
+
+                // Img URL
+                Elements imgElements = doc.select("img");
+
+                // Her img etiketi için URL'yi al ve sadece http olanları yazdır
+                for (Element imgElement : imgElements) {
+                    String imgUrl = imgElement.attr("src");
+                    if (imgUrl.startsWith("http")) {
+                        //System.out.println("Resim URL'si: " + imgUrl);
+                        yeniYayin.setImgUrl(imgUrl);
+                    }
+                }
+
+                // PDF Link
+                if (Objects.nonNull(pdfLink)) {
+                    yeniYayin.setPdfLink(pdfLink);
+                }
+
+                // Yayin nesnesini kaydet
                 yayinRepo.save(yeniYayin);
                 yayinSizeCheck++;
-               // System.out.println("sonraki kitap \n"+yayinSizeCheck);
+
+                // Diğer işlemler
                 for (Element liElement : liElements) {
-                    MakaleTerimleri makaleTerimleri=new MakaleTerimleri();
+                    MakaleTerimleri makaleTerimleri = new MakaleTerimleri();
                     makaleTerimleri.setYayin(yeniYayin);
                     String liKeyword = liElement.selectFirst("a").text();
                     makaleTerimleri.setAnahtarKelime(liKeyword);
                     makaleTerimleriRepo.save(makaleTerimleri);
                 }
             }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
