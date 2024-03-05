@@ -1,7 +1,5 @@
 package org.example.webscraping.api.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.webscraping.domain.MakaleTerimleri;
 import org.example.webscraping.domain.Yayin;
 import org.example.webscraping.repo.MakaleTerimleriRepo;
@@ -11,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.fasterxml.jackson.core.type.TypeReference;
 
 import java.util.List;
 
@@ -117,6 +114,18 @@ public class WebScrapingController {
     public ResponseEntity<?> downloadPdf(@RequestParam String pdfLink) {
         String fullPdfUrl = "https://link.springer.com" + pdfLink;
         return yayinService.downloadPdf(fullPdfUrl);
+    }
+
+    @GetMapping("/yanlisKelimeyeGoreMakaleAra")
+    public ResponseEntity<?> searchByKeyword(@RequestParam String anahtarKelime) {
+        List<MakaleTerimleri> publications =yayinService.yanlisKelimeyeEnUygunMakaleler(anahtarKelime);
+        return  ResponseEntity.ok(publications);
+    }
+
+    @GetMapping("/enUygunKelime")
+    public ResponseEntity<?> benzerligiYuksekOlanAnahtarKelime() {
+        String bulunanKelime =yayinService.enUygunAnahtarKelime();
+        return  ResponseEntity.ok(bulunanKelime);
     }
 
 

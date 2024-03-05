@@ -40,6 +40,8 @@ public class YayinServiceImpl implements YayinService {
 
     private final RestTemplate restTemplate;
 
+    private static String enUygunKelime;
+
     @Override
     public void yayinCek(String anahtarKelime) {
         yayinSizeCheck=0;
@@ -346,6 +348,63 @@ public class YayinServiceImpl implements YayinService {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
+    @Override
+    public List<MakaleTerimleri> yanlisKelimeyeEnUygunMakaleler(String benzerAnahtarKelime) {
+        List<String> uniqueAnahtarKelimeList = anahtarKelimeList();
+
+        // benzerAnahtarKelime'ye en çok uyan kelimeyi bulma
+        Optional<String> enUyanKelime = uniqueAnahtarKelimeList.stream()
+                .max(Comparator.comparingInt(anahtarKelime ->
+                        calculateSimilarityScore(benzerAnahtarKelime, anahtarKelime)));
+
+        System.out.println("benzer anahtar kelime: " + benzerAnahtarKelime);
+        System.out.println("en uyan kelime: " + enUyanKelime.orElse("Uygun kelime bulunamadı")); // orElse ile null check
+
+        if (enUyanKelime.isPresent()) {
+            enUygunKelime = enUyanKelime.get();
+
+            // Anahtar kelimeye göre makaleleri filtreleme
+            List<MakaleTerimleri> uygunMakaleler = makaleTerimleriRepo.findByAnahtarKelime(enUygunKelime);
+
+            return uygunMakaleler;
+        } else {
+            // Eğer uygun kelime bulunamazsa boş bir liste döndürülebilir.
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
+    public String enUygunAnahtarKelime() {
+        return enUygunKelime;
+    }
+
+
+    private int calculateSimilarityScore(String kelime1, String kelime2) {
+        int[][] distance = new int[kelime1.length() + 1][kelime2.length() + 1];
+
+        for (int i = 0; i <= kelime1.length(); i++) {
+            distance[i][0] = i;
+        }
+
+        for (int j = 0; j <= kelime2.length(); j++) {
+            distance[0][j] = j;
+        }
+
+        for (int i = 1; i <= kelime1.length(); i++) {
+            for (int j = 1; j <= kelime2.length(); j++) {
+                int cost = (kelime1.charAt(i - 1) == kelime2.charAt(j - 1)) ? 0 : 1;
+                distance[i][j] = Math.min(
+                        Math.min(distance[i - 1][j] + 1, distance[i][j - 1] + 1),
+                        distance[i - 1][j - 1] + cost
+                );
+            }
+        }
+
+        return -distance[kelime1.length()][kelime2.length()];
+    }
+
+
 
 
 }

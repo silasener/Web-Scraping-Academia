@@ -32,4 +32,8 @@ public interface YayinService {
 
     ResponseEntity<ByteArrayResource> downloadPdf(String pdfUrl);
 
+    List<MakaleTerimleri> yanlisKelimeyeEnUygunMakaleler(String benzerAnahtarKelime);
+
+    String enUygunAnahtarKelime();
+
 }
