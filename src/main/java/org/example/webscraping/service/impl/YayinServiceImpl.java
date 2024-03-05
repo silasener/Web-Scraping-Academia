@@ -88,7 +88,7 @@ public class YayinServiceImpl implements YayinService {
 
             Element pdfLinkElement = doc.selectFirst(".c-card__body a[data-test=front-matter-pdf]");
             String pdfLink = pdfLinkElement.attr("href");
-            System.out.println("PDF Link: " + pdfLink);
+            //System.out.println("PDF Link: " + pdfLink);
            // System.out.println("Book Title: " + bookTitle);
 
             // Editors'ı seç
