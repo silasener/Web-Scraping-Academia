@@ -94,6 +94,24 @@ public class YayinServiceImpl implements YayinService {
             //System.out.println("PDF Link: " + pdfLink);
            // System.out.println("Book Title: " + bookTitle);
 
+
+            // img etiketlerini seç
+            Elements imgElements = doc.select("img");
+
+            // Her img etiketi için URL'yi al ve sadece http olanları yazdır
+            for (Element imgElement : imgElements) {
+                String imgUrl = imgElement.attr("src");
+                if (imgUrl.startsWith("http")) {
+                    System.out.println("Resim URL'si: " + imgUrl);
+                }
+            }
+
+
+
+
+
+
+
             // Editors'ı seç
             Elements editorElements = doc.select(".c-bibliographic-information__value[data-component=book-contributor-list]");
             StringBuilder editors = new StringBuilder();
