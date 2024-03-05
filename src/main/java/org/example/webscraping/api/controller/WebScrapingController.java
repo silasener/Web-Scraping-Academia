@@ -118,8 +118,9 @@ public class WebScrapingController {
 
     @GetMapping("/yanlisKelimeyeGoreMakaleAra")
     public ResponseEntity<?> searchByKeyword(@RequestParam String anahtarKelime) {
-        List<MakaleTerimleri> publications =yayinService.yanlisKelimeyeEnUygunMakaleler(anahtarKelime);
-        return  ResponseEntity.ok(publications);
+        List<MakaleTerimleri> tumEserler =yayinService.yanlisKelimeyeEnUygunMakaleler(anahtarKelime);
+        List<MakaleTerimleri> uniqueEserler=yayinService.uniqueEserler(tumEserler);
+        return  ResponseEntity.ok(uniqueEserler);
     }
 
     @GetMapping("/enUygunKelime")

@@ -21,6 +21,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -386,6 +387,23 @@ public class YayinServiceImpl implements YayinService {
     @Override
     public String enUygunAnahtarKelime() {
         return enUygunKelime;
+    }
+
+    public List<MakaleTerimleri> uniqueEserler(List<MakaleTerimleri> makaleTerimleriList) {
+        // YayinId'ye göre bir Map oluştur
+        Map<String, MakaleTerimleri> uniqueMap = makaleTerimleriList.stream()
+                .collect(Collectors.toMap(
+                        makaleTerimleri -> makaleTerimleri.getYayin().getYayinId(),
+                        Function.identity(),
+                        (existing, replacement) -> existing // Aynı yayinId'ye sahipse mevcut elemanı kullan
+                ));
+
+        // Map'teki değerleri kullanarak bir List oluştur
+        List<MakaleTerimleri> uniqueList = uniqueMap.values()
+                .stream()
+                .collect(Collectors.toList());
+
+        return uniqueList;
     }
 
 

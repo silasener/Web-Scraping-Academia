@@ -36,4 +36,6 @@ public interface YayinService {
 
     String enUygunAnahtarKelime();
 
+    List<MakaleTerimleri> uniqueEserler(List<MakaleTerimleri> makaleTerimleriList);
+
 }
