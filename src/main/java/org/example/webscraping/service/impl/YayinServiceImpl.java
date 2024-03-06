@@ -162,16 +162,22 @@ public class YayinServiceImpl implements YayinService {
             String aboutBookContent = aboutBookElement.select(".c-book-section").text();
 
 
-            String bookText=null;
+            String bookTipText =null;
             Element bookElement = doc.selectFirst(".c-article-identifiers__item:contains(Book)");
             if(Objects.nonNull(bookElement)){
-                bookText = bookElement.text();
+                bookTipText = bookElement.text();
             }
 
             String conferenceText=null;
             Element conferenceElement = doc.selectFirst(".c-article-identifiers__item:contains(Conference proceedings)");
             if(Objects.nonNull(conferenceElement)){
                 conferenceText=conferenceElement.text();
+            }
+
+            String textbook=null;
+            Element textBookElement= doc.selectFirst(".c-article-identifiers__item:contains(Textbook)");
+            if(Objects.nonNull(textBookElement)){
+                textbook=textBookElement.text();
             }
 
 
@@ -193,11 +199,13 @@ public class YayinServiceImpl implements YayinService {
                 }
 
                 // Yayin Turu
-                if (Objects.nonNull(bookText)) {
-                    yeniYayin.setYayinTuru(bookText);
+                if (Objects.nonNull(bookTipText)) {
+                    yeniYayin.setYayinTuru(bookTipText);
                 } else if (Objects.nonNull(conferenceText)) {
                     yeniYayin.setYayinTuru(conferenceText);
-                } else {
+                } else if(Objects.nonNull(textbook)){
+                    yeniYayin.setYayinTuru(textbook);
+                }else{
                     yeniYayin.setYayinTuru("belirsiz");
                 }
 
@@ -296,6 +304,8 @@ public class YayinServiceImpl implements YayinService {
 
         Set<String> uniqueYazarlar = new HashSet<>(yazarIsmiList);
         List<String> uniqueYazarlarList = new ArrayList<>(uniqueYazarlar);
+        Collections.sort(uniqueYazarlarList);
+
         return uniqueYazarlarList;
     }
 
@@ -309,6 +319,8 @@ public class YayinServiceImpl implements YayinService {
 
         Set<String> uniqueYayinAdlari = new HashSet<>(yayinAdiList);
         List<String> uniqueYayinAdlariList= new ArrayList<>(uniqueYayinAdlari);
+        Collections.sort(uniqueYayinAdlariList);
+
         return uniqueYayinAdlariList;
     }
 
@@ -322,6 +334,8 @@ public class YayinServiceImpl implements YayinService {
 
         Set<String> uniqueYayinciAdlari = new HashSet<>(yayinciAdiList);
         List<String> uniqueYayinAdlariList= new ArrayList<>(uniqueYayinciAdlari);
+        Collections.sort(uniqueYayinAdlariList);
+
         return uniqueYayinAdlariList;
     }
 
@@ -361,6 +375,7 @@ public class YayinServiceImpl implements YayinService {
 
         Set<String> uniqueAnahtarKelimeler = new HashSet<>(anahtarKelimeList);
         List<String> uniqueAnahtarKelimeList = new ArrayList<>(uniqueAnahtarKelimeler);
+        Collections.sort(uniqueAnahtarKelimeList);
 
         return uniqueAnahtarKelimeList;
     }
@@ -375,6 +390,7 @@ public class YayinServiceImpl implements YayinService {
 
         Set<String> uniqueYayinTuruAdlari = new HashSet<>(yayinTuruList);
         List<String> uniqueYayinTuruAdlariList= new ArrayList<>(uniqueYayinTuruAdlari);
+        Collections.sort(uniqueYayinTuruAdlariList);
 
         return uniqueYayinTuruAdlariList;
     }
@@ -413,8 +429,8 @@ public class YayinServiceImpl implements YayinService {
                 .max(Comparator.comparingInt(anahtarKelime ->
                         calculateSimilarityScore(benzerAnahtarKelime, anahtarKelime)));
 
-        System.out.println("benzer anahtar kelime: " + benzerAnahtarKelime);
-        System.out.println("en uyan kelime: " + enUyanKelime.orElse("Uygun kelime bulunamadı")); // orElse ile null check
+       // System.out.println("benzer anahtar kelime: " + benzerAnahtarKelime);
+       // System.out.println("en uyan kelime: " + enUyanKelime.orElse("Uygun kelime bulunamadı")); // orElse ile null check
 
         if (enUyanKelime.isPresent()) {
             enUygunKelime = enUyanKelime.get();
