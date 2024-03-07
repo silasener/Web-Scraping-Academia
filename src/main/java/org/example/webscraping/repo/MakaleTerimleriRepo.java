@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface MakaleTerimleriRepo extends MongoRepository<MakaleTerimleri, String> {
 
-    @Query("{ 'anahtarKelime' : ?0 }")
+    @Query("{ 'anahtarKelime' : { $regex: ?0, $options: 'i' } }")
     List<MakaleTerimleri> findByAnahtarKelime(String anahtarKelime);
 
     @Query("{ 'yayin' : ?0 }")

@@ -344,14 +344,26 @@ public class YayinServiceImpl implements YayinService {
         return yayinRepo.findByYayinId(yayinId);
     }
 
-    @Override
     public List<MakaleTerimleri> anahtarKelimeyiBarindiranMakaleler(String anahtarKelime) {
         List<MakaleTerimleri> makaleTerimleriList = makaleTerimleriRepo.findByAnahtarKelime(anahtarKelime);
-        //System.out.println(anahtarKelime);
+
+        // DOI numaralarını kontrol etmek için bir set oluştur
+        Set<String> uniqueDOINumbers = new HashSet<>();
+
+        // Filtrelenmiş makaleleri unique DOI numaralarına göre kontrol et
+        List<MakaleTerimleri> uniqueMakaleList = new ArrayList<>();
         for (MakaleTerimleri makale : makaleTerimleriList) {
-            //System.out.println(makale.getYayin().getYayinAdi());
+            String doiNumber = makale.getYayin().getDoiNumarasi();
+
+            // DOI numarası daha önce eklenmediyse, listeye ekle ve sete ekle
+            if (uniqueDOINumbers.add(doiNumber)) {
+                uniqueMakaleList.add(makale);
+            }
         }
-        return makaleTerimleriList;
+
+        // Eğer ihtiyacınıza bağlı olarak DOI numarası kontrolü sonrasında başka bir işlem yapmak istiyorsanız burada yapabilirsiniz
+
+        return uniqueMakaleList;
     }
 
     @Override
