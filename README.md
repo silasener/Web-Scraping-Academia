@@ -3,6 +3,17 @@
 ## Introduction
 This project aims to facilitate access to information from the Springer academic website using web scraping. It utilizes MongoDB database with Elasticsearch query structures and is implemented using the Java Spring framework, MongoDB repository, and Jsoup for web scraping. Additionally, MongoDB Compass and NoSQL queries are employed for database management.
 
+ ## Technologies
+- Java Spring framework
+- MongoDB database
+- Elasticsearch for query structures
+- Jsoup for web scraping
+- MongoDB Compass for database management
+- NoSQL queries for database operations
+
+## Project Screen 
+<img width="1440" alt="Ekran Resmi 2024-03-08 11 36 55" src="https://github.com/silasener/WebScraping/assets/56559417/616d86d3-2be6-4213-a857-0f98baa27bf8">
+
 ## Project Overview
 The project consists of three main components:
 
@@ -69,9 +80,6 @@ The project consists of three main components:
     - Sort the publications by publication date or citation count.
 
 
-
-## Project Screen 
-<img width="1440" alt="Ekran Resmi 2024-03-08 11 36 55" src="https://github.com/silasener/WebScraping/assets/56559417/616d86d3-2be6-4213-a857-0f98baa27bf8">
 
 ## MongoDB Compass and NoSQL Queries
 Include instructions or examples of using MongoDB Compass and NoSQL queries for managing the database.
