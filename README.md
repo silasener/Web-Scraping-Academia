@@ -96,8 +96,6 @@ Include instructions or examples of using MongoDB Compass and NoSQL queries for 
 ## Contributors
 - [Emre Terzi](https://github.com/emretterzi)
 
-## Acknowledgments
-Mention any libraries, articles, or resources used in the project.
 
 
     
