@@ -11,8 +11,17 @@ This project aims to facilitate access to information from the Springer academic
 - MongoDB Compass for database management
 - NoSQL queries for database operations
 
-## Project Screen 
+## Project Screens
+
+1. **Main Screen:**
+   
 <img width="1440" alt="Ekran Resmi 2024-03-08 11 36 55" src="https://github.com/silasener/WebScraping/assets/56559417/616d86d3-2be6-4213-a857-0f98baa27bf8">
+
+
+2. **Detail Screen:**
+
+<img width="1440" alt="Ekran Resmi 2024-03-08 11 51 33" src="https://github.com/silasener/WebScraping/assets/56559417/3659d390-cc85-4574-b663-ae6a538e15a8">
+
 
 ## Project Overview
 The project consists of three main components:
