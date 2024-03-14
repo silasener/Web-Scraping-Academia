@@ -206,7 +206,7 @@ public class YayinServiceImpl implements YayinService {
                 } else if(Objects.nonNull(textbook)){
                     yeniYayin.setYayinTuru(textbook);
                 }else{
-                    yeniYayin.setYayinTuru("belirsiz");
+                    yeniYayin.setYayinTuru("Article"); // makale default
                 }
 
                 // Yayimlanma Tarihi
