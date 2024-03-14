@@ -180,6 +180,12 @@ public class YayinServiceImpl implements YayinService {
                 textbook=textBookElement.text();
             }
 
+            String referenceWorkText=null;
+            Element referenceWorkElement= doc.selectFirst(".c-article-identifiers__item:contains(Reference work)");
+            if(Objects.nonNull(referenceWorkElement)){
+               referenceWorkText =referenceWorkElement.text();
+            }
+
 
             // System.out.println("About this book içeriği: " + aboutBookContent);
 
@@ -205,8 +211,10 @@ public class YayinServiceImpl implements YayinService {
                     yeniYayin.setYayinTuru(conferenceText);
                 } else if(Objects.nonNull(textbook)){
                     yeniYayin.setYayinTuru(textbook);
-                }else{
-                    yeniYayin.setYayinTuru("Article"); // makale default
+                }else if(Objects.nonNull(referenceWorkText)){
+                    yeniYayin.setYayinTuru(referenceWorkText);
+                }else {
+                    yeniYayin.setYayinTuru("Article");
                 }
 
                 // Yayimlanma Tarihi
