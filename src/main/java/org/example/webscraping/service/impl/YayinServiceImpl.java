@@ -435,36 +435,57 @@ public class YayinServiceImpl implements YayinService {
 
     @Override
     public List<MakaleTerimleri> yanlisKelimeyeEnUygunMakaleler(String benzerAnahtarKelime) {
-        List<MakaleTerimleri> makaleTerimLeriReposu = makaleTerimleriRepo.findAll();
-        List<String> anahtarKelimeList = makaleTerimLeriReposu.stream()
-                .map(MakaleTerimleri::getAnahtarKelime)
-                .flatMap(anahtarKelime -> Arrays.stream(anahtarKelime.split("\\s+")))
-                .collect(Collectors.toList());
+        // Boşluklara göre parçalayarak kelime sayısını kontrol et
+        int kelimeSayisi = benzerAnahtarKelime.split("\\s+").length;
+        if (kelimeSayisi > 1) {
+            // Birden çok kelime varsa
+            List<String> anahtarKelimeListesi = anahtarKelimeList();
+            Optional<String> uygunKelimeObegi = anahtarKelimeListesi.stream().max(Comparator.comparingInt(anahtarKelime ->
+                    calculateSimilarityScore(benzerAnahtarKelime, anahtarKelime)));
 
-        Set<String> uniqueAnahtarKelimeler = new HashSet<>(anahtarKelimeList);
-        List<String> uniqueAnahtarKelimeList = new ArrayList<>(uniqueAnahtarKelimeler);
+            if (uygunKelimeObegi.isPresent()) {
+                enUygunKelime = uygunKelimeObegi.get();
+                //System.out.println("Çoklu kelime için en uygun kelime: " + enUygunKelime);
+            }
 
-        // benzerAnahtarKelime'ye en çok uyan kelimeyi bulma
-        Optional<String> enUyanKelime = uniqueAnahtarKelimeList.stream()
-                .max(Comparator.comparingInt(anahtarKelime ->
-                        calculateSimilarityScore(benzerAnahtarKelime, anahtarKelime)));
-
-       // System.out.println("benzer anahtar kelime: " + benzerAnahtarKelime);
-       // System.out.println("en uyan kelime: " + enUyanKelime.orElse("Uygun kelime bulunamadı")); // orElse ile null check
-
-        if (enUyanKelime.isPresent()) {
-            enUygunKelime = enUyanKelime.get();
-
-            // Anahtar kelimeye göre makaleleri filtreleme
-            //List<MakaleTerimleri> uygunMakaleler = makaleTerimleriRepo.findByAnahtarKelime(enUygunKelime);
-            List<MakaleTerimleri> uygunMakaleler = makaleTerimleriRepo.findByAnahtarKelimeContaining(enUygunKelime);
-
-            return uygunMakaleler;
+            // Çoklu kelime öbeği için uygun kelime döndür
+            if (enUygunKelime != null) {
+                List<MakaleTerimleri> uygunMakaleler = makaleTerimleriRepo.findByAnahtarKelimeContaining(enUygunKelime);
+                return uygunMakaleler;
+            } else {
+                //System.out.println("Çoklu kelime için uygun kelime bulunamadı");
+                return Collections.emptyList();
+            }
         } else {
-            // Eğer uygun kelime bulunamazsa boş bir liste döndürülebilir.
-            return Collections.emptyList();
+            // Tek kelime varsa
+            List<MakaleTerimleri> makaleTerimLeriReposu = makaleTerimleriRepo.findAll();
+            List<String> anahtarKelimeList = makaleTerimLeriReposu.stream()
+                    .map(MakaleTerimleri::getAnahtarKelime)
+                    .flatMap(anahtarKelime -> Arrays.stream(anahtarKelime.split("\\s+")))
+                    .collect(Collectors.toList());
+
+            Set<String> uniqueAnahtarKelimeler = new HashSet<>(anahtarKelimeList);
+            List<String> uniqueAnahtarKelimeList = new ArrayList<>(uniqueAnahtarKelimeler);
+
+            Optional<String> enUyanKelime = uniqueAnahtarKelimeList.stream()
+                    .max(Comparator.comparingInt(anahtarKelime ->
+                            calculateSimilarityScore(benzerAnahtarKelime, anahtarKelime)));
+
+            if (enUyanKelime.isPresent()) {
+                enUygunKelime = enUyanKelime.get();
+                //System.out.println("Tekli kelime için en uygun kelime: " + enUygunKelime);
+
+                // Anahtar kelimeye göre makaleleri filtreleme
+                List<MakaleTerimleri> uygunMakaleler = makaleTerimleriRepo.findByAnahtarKelimeContaining(enUygunKelime);
+
+                return uygunMakaleler;
+            } else {
+                //System.out.println("Tekli kelime için uygun kelime bulunamadı");
+                return Collections.emptyList();
+            }
         }
     }
+
 
     @Override
     public String enUygunAnahtarKelime() {
