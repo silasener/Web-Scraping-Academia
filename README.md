@@ -6,7 +6,6 @@ This project aims to facilitate access to information from the Springer academic
  ## Technologies
 - Java Spring framework
 - MongoDB database
-- Elasticsearch for query structures
 - Jsoup for web scraping
 - MongoDB Compass for database management
 - NoSQL queries for database operations
